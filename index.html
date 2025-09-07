@@ -1,351 +1,150 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>HACKED</title>
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
+  <meta charset="UTF-8">
+  <title>Beni Affet ❤️</title>
   <style>
-    :root{
-      --bg-overlay: rgba(2,8,15,0.55);
-      --neon: #64f0ff;
-      --neon-2: #9d64ff;
-      --accent: #00ffd5;
-      --glass: rgba(255,255,255,0.06);
-      --shadow: 0 8px 30px rgba(0,0,0,0.6);
-      --max-width: 1200px;
+    @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@400;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    /* Reset-ish */
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body,#app{height:100%}
-    body{
-      font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      color: #e9f8ff;
-      background: #000;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      overflow-x:hidden;
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #ff758c, #ff7eb3, #fad0c4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      position: relative;
     }
 
-    /* Fullscreen hero with responsive background */
-    .hero {
-      position:relative;
-      min-height:100vh;
-      width:100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      overflow:hidden;
+    .overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.3);
+      z-index: 1;
     }
 
-    /* background using CSS layering; mobile and desktop images swapped via media queries */
-    .hero::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background-image: url('ataturk-vertical.jpg'); /* mobile default: vertical */
-      background-size:cover;
-      background-position:center center;
-      filter: saturate(.95) contrast(.9) brightness(.55);
-      transform-origin:center;
-      z-index:0;
-      will-change: transform, background-position;
-      animation: bgSlowMove 12s linear infinite;
-    }
-
-    /* Subtle grain / texture overlay (scanlines) */
-    .hero::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background:
-        linear-gradient(transparent 60%, rgba(0,0,0,0.06) 100%),
-        repeating-linear-gradient(transparent, rgba(255,255,255,0.01) 1px);
-      z-index:3;
-      mix-blend-mode: overlay;
-    }
-
-    @media (min-width:900px){
-      .hero::before{
-        background-image: url('ataturk-horizontal.jpg'); /* desktop: horizontal */
-        background-position: center top;
-      }
-    }
-
-    /* Reduced motion respect */
-    @media (prefers-reduced-motion: reduce){
-      .hero::before { animation: none; }
-    }
-
-    /* Container for content */
-    .wrap{
-      position:relative;
-      z-index:5;
-      width:100%;
-      max-width:var(--max-width);
-      padding: 40px 24px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:28px;
-    }
-
-    /* Top floating logo */
-    .logo-pill{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-      border-radius:999px;
-      padding:6px 12px;
-      backdrop-filter: blur(6px);
-      box-shadow: var(--shadow);
-      align-self:flex-start;
-      margin-left:12px;
-      transform: translateY(-6px);
-      animation: floatSlow 6s ease-in-out infinite;
-    }
-    .logo-pill img{
-      width:46px;
-      height:46px;
-      object-fit:contain;
-      display:block;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
-    }
-    .logo-pill .brand{
-      font-family: "Orbitron", sans-serif;
-      letter-spacing: 0.12em;
-      font-weight:700;
-      font-size:14px;
-      color: #fff;
-      text-shadow: 0 4px 22px rgba(100,240,255,0.12);
-    }
-
-    /* Main headline (neon/glitch combo) */
-    h1{
-      font-family: "Orbitron", sans-serif;
-      font-weight:900;
-      font-size: clamp(28px, 6vw, 64px);
-      line-height:1;
-      letter-spacing: 0.02em;
-      color: #fff;
-      position:relative;
-      padding: 8px 16px;
-      text-transform:uppercase;
-      mix-blend-mode: screen;
-      text-shadow:
-        0 0 18px rgba(156,100,255,0.12),
-        0 0 32px rgba(100,240,255,0.08);
-      z-index:6;
-    }
-
-    /* Neon glow text */
-    .neon {
+    .container {
+      text-align: center;
       color: white;
-      text-shadow:
-        0 0 6px rgba(100,240,255,0.9),
-        0 0 18px rgba(100,240,255,0.6),
-        0 6px 30px rgba(0,0,0,0.6);
-      filter: drop-shadow(0 10px 30px rgba(100,240,255,0.06));
-      position:relative;
+      z-index: 2;
+      animation: fadeIn 2s ease-in-out forwards;
     }
 
-    /* small glitch lines */
-    .glitch{
-      position:relative;
-      display:inline-block;
-    }
-    .glitch::before,
-    .glitch::after{
-      content: attr(data-text);
-      position:absolute;
-      left:0; top:0;
-      width:100%;
-      overflow:hidden;
-      clip-path: inset(0 0 0 0);
-      opacity:.85;
-    }
-    .glitch::before{
-      transform: translate(-2px, -2px);
-      color: var(--neon);
-      mix-blend-mode: screen;
-      text-shadow: 0 0 10px var(--neon);
-      animation: glitchTop 2.8s infinite linear;
-    }
-    .glitch::after{
-      transform: translate(2px, 2px);
-      color: var(--neon-2);
-      mix-blend-mode: screen;
-      text-shadow: 0 0 8px var(--neon-2);
-      animation: glitchBot 3.1s infinite linear;
+    h1 {
+      font-size: 4rem;
+      font-family: 'Great Vibes', cursive;
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px rgba(255,255,255,0.9);
+      animation: glow 2s infinite alternate;
     }
 
-    /* Subtitle / description */
-    .sub{
-      font-size: clamp(12px, 2.2vw, 18px);
-      color: rgba(230,255,255,0.9);
-      max-width: 800px;
-      line-height:1.45;
-      z-index:6;
-      text-shadow: 0 6px 22px rgba(0,0,0,0.6);
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(0,0,0,0.7);
     }
 
-    /* Buttons */
-    .controls{
-      display:flex;
-      gap:12px;
-      align-items:center;
-      justify-content:center;
-      z-index:6;
-      flex-wrap:wrap;
-    }
-    .btn{
-      padding:10px 18px;
-      border-radius:12px;
-      font-weight:600;
-      background:linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-      border: 1px solid rgba(255,255,255,0.06);
-      backdrop-filter: blur(6px);
-      color: #e6fff9;
-      cursor:pointer;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      transition: transform .24s ease, box-shadow .24s ease;
-    }
-    .btn:hover{ transform: translateY(-4px); box-shadow: 0 20px 50px rgba(0,0,0,0.7); }
-
-    .btn.primary{
-      background: linear-gradient(90deg, rgba(100,240,255,0.08), rgba(157,100,255,0.07));
-      border: 1px solid rgba(100,240,255,0.15);
-      text-shadow: 0 2px 20px rgba(100,240,255,0.12);
+    button {
+      padding: 15px 35px;
+      font-size: 1.3rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+      transition: 0.3s;
     }
 
-    /* Decorative corner logo (small, floating) */
-    .corner-logo{
+    button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    }
+
+    .heart {
       position: absolute;
-      right:18px;
-      bottom:18px;
-      z-index:7;
-      width:88px;
-      height:88px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:16px;
-      background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(255,255,255,0.02));
-      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-      border: 1px solid rgba(255,255,255,0.05);
-      transform-origin:center;
-      animation: popFloat 6s ease-in-out infinite;
-    }
-    .corner-logo img{ width:64px; height:64px; object-fit:contain; }
-
-    /* Footer tagline small */
-    .tag{
-      font-size:12px;
-      color: rgba(220,255,255,0.7);
-      margin-top:6px;
-      z-index:6;
+      font-size: 28px;
+      animation: floatUp 5s linear forwards;
+      color: #ff3860;
+      text-shadow: 0 0 10px rgba(255,255,255,0.8);
     }
 
-    /* small legal/credit strip */
-    .credit{
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-800px) scale(2); opacity: 0; }
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #fff, 0 0 20px #ff4a4a, 0 0 30px #ff0066; }
+      to { text-shadow: 0 0 20px #fff, 0 0 30px #ff3366, 0 0 40px #ff1a75; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Arka plan parlayan yıldız efekti */
+    .star {
       position: absolute;
-      left:12px;
-      bottom:12px;
-      z-index:7;
-      font-size:12px;
-      color: rgba(200,230,240,0.7);
-      background: rgba(0,0,0,0.28);
-      padding:6px 10px;
-      border-radius:8px;
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(255,255,255,0.02);
+      width: 3px;
+      height: 3px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 3s infinite alternate;
     }
 
-    /* Animations */
-    @keyframes bgSlowMove {
-      0%{ transform: scale(1) translateY(0); background-position: center 40%; }
-      50%{ transform: scale(1.02) translateY(-6px); background-position: center 50%; }
-      100%{ transform: scale(1) translateY(0); background-position: center 40%; }
+    @keyframes twinkle {
+      from { opacity: 0.2; transform: scale(1); }
+      to { opacity: 1; transform: scale(1.5); }
     }
-    @keyframes floatSlow {
-      0%{ transform: translateY(-6px); }
-      50%{ transform: translateY(6px); }
-      100%{ transform: translateY(-6px); }
-    }
-    @keyframes popFloat {
-      0%{ transform: translateY(0) rotate(-1deg); }
-      50%{ transform: translateY(-8px) rotate(1deg); }
-      100%{ transform: translateY(0) rotate(-1deg); }
-    }
-    @keyframes glitchTop {
-      0%{ clip-path: inset(0 0 0 0); transform: translate(-2px,-2px) skewX(-1deg); }
-      10%{ clip-path: inset(0 0 65% 0); transform: translate(1px,-3px) skewX(0deg); }
-      20%{ clip-path: inset(30% 0 55% 0); transform: translate(-1px,1px) skewX(1deg); }
-      30%{ clip-path: inset(10% 0 40% 0); transform: translate(-2px,-1px); }
-      100%{ clip-path: inset(0 0 0 0); transform: translate(-2px,-2px); }
-    }
-    @keyframes glitchBot {
-      0%{ clip-path: inset(0 0 0 0); transform: translate(2px,2px); }
-      15%{ clip-path: inset(50% 0 0 0); transform: translate(-2px,3px) skewX(2deg); }
-      35%{ clip-path: inset(20% 0 40% 0); transform: translate(1px,-1px) skewX(-1deg); }
-      100%{ clip-path: inset(0 0 0 0); transform: translate(2px,2px); }
-    }
-
-    /* Responsive layout tweaks */
-    @media (max-width:460px){
-      .logo-pill{ display:none; } /* compact view */
-      .corner-logo{ width:68px; height:68px; right:12px; bottom:12px; }
-      .corner-logo img{ width:54px; height:54px; }
-    }
-
-    @media (min-width:900px){
-      .wrap{
-        padding: 80px 32px;
-        align-items:flex-start;
-        text-align:left;
-      }
-      .logo-pill{ margin-left:0; }
-      h1{ font-size: clamp(36px,4vw,74px); }
-      .controls{ justify-content:flex-start; }
-    }
-
   </style>
 </head>
 <body>
-  <main class="hero" id="app" role="main" aria-label="ZeroøTrace">
-    <div class="wrap">
+  <div class="overlay"></div>
+  <div class="container">
+    <h1>Beni Affet ❤️</h1>
+    <h2>Sensiz olmuyor... Hatalıyım, ama kalbim hep seninle.</h2>
+    <button onclick="sendHearts()">Seni Seviyorum 💕</button>
+  </div>
 
-      <!-- small floating brand (top-left on wide screens) -->
-      <div class="logo-pill" aria-hidden="true">
-        <img src="https://i.hizliresim.com/j2novlo.png" alt="ZeroTrace logo">
-        <div class="brand">ZERØTRACE</div>
-      </div>
+  <script>
+    function sendHearts() {
+      for (let i = 0; i < 20; i++) {
+        let heart = document.createElement("div");
+        heart.innerHTML = "💖";
+        heart.classList.add("heart");
+        heart.style.left = Math.random() * window.innerWidth + "px";
+        heart.style.bottom = "0px";
+        heart.style.fontSize = Math.random() * 20 + 20 + "px";
+        document.body.appendChild(heart);
 
-      <!-- Main hero content -->
-      <h1 class="neon">
-        <span class="glitch" data-text="Hacked by Waxy & wqlsz">Hacked by Waxy & wqlsz</span>
-      </h1>
+        setTimeout(() => {
+          heart.remove();
+        }, 5000);
+      }
+    }
 
-      <p class="sub">
-        Siz ateşi istediniz, <strong>Biz size cehennemi getirdik</strong>
-      </p>
-      <div class="tag">@waxyiscomeback</div>
-
-    </div>
-
-    <!-- floating corner logo (always visible) -->
-    <div class="corner-logo" title="ZERØTRACE">
-      <img src="https://i.hizliresim.com/j2novlo.png" alt="ZERØTRACE logo küçük">
-    </div>
-
-    <div class="credit">© <strong>Waxy &amp; Wqlsz</strong> • 2025</div>
-  </main>
+    // Yıldız arka plan
+    for (let i = 0; i < 50; i++) {
+      let star = document.createElement("div");
+      star.classList.add("star");
+      star.style.top = Math.random() * window.innerHeight + "px";
+      star.style.left = Math.random() * window.innerWidth + "px";
+      star.style.animationDuration = (Math.random() * 3 + 2) + "s";
+      document.body.appendChild(star);
+    }
+  </script>
 </body>
 </html>
