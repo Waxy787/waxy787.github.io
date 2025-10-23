@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>GDD — Rebatron | Revizyon</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <style>
+        /* Renk Değişiklikleri & Tema */
+        :root {
+            --bg: #0d0e14;
+            --card: #181a20;
+            --card-hover: #21242c;
+            --border: rgba(255, 255, 255, 0.08);
+            --muted: #aeb4c0;
+            --text-color: #f1f6f8;
+            --accent: #4fb89a; /* Yeni ve daha canlı aksan rengi */
+            --danger: #ff6b6b;
+            --glass: rgba(255, 255, 255, 0.05);
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            --code-bg: #111216;
+            --code-color: #79e3d4;
+        }
+
+        /* Temel Stiller */
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            transition: all 0.2s ease-in-out; /* Hafif geçişler */
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(180deg, #0a0b0f 0%, var(--bg) 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-color);
+        }
+        
+        /* Header */
+        header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), #4fbfb8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 24px;
+            color: #0d1211;
+            box-shadow: 0 0 15px rgba(79, 184, 154, 0.4);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        p.lead {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+        
+        /* Layout Grid */
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Sidebar Navigasyon */
+        nav {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 30px;
+            height: fit-content;
+        }
+
+        nav h3 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        nav li {
+            padding: 10px 12px;
+            border-radius: 10px;
+            color: var(--muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+        }
+
+        nav li:hover {
+            background: var(--glass);
+            color: var(--accent);
+        }
+        
+        /* Ana İçerik */
+        main {
+            background: transparent;
+        }
+
+        .card {
+            background: var(--card);
+            /* Daha yumuşak gradyan yerine düz kart rengi ve hafif bir border */
+            border: 1px solid var(--border);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            margin: 0 0 10px 0;
+            font-size: 22px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid rgba(79, 184, 154, 0.2);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        
+        h3.section {
+            margin: 20px 0 10px 0;
+            color: var(--text-color);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h3.section i {
+            color: var(--accent);
+        }
+
+        /* Metinler ve Kodlar */
+        p {
+            margin-bottom: 15px;
+        }
+        
+        code {
+            font-family: 'Space Mono', monospace;
+            background: var(--code-bg);
+            padding: 3px 8px;
+            border-radius: 6px;
+            color: var(--code-color);
+            border: 1px solid rgba(121, 227, 212, 0.1);
+            font-size: 0.9em;
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* Listeler */
+        ul.check, ol {
+            list-style: none;
+            padding-left: 0;
+            margin-left: 0;
+        }
+
+        ul.check li, ol li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 8px;
+        }
+
+        ul.check li::before {
+            content: "\f058"; /* Check-circle icon */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: var(--accent);
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 16px;
+        }
+        
+        ol li::before {
+            content: counter(item) ".";
+            counter-increment: item;
+            color: var(--accent);
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        /* Tablolar */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 15px;
+            background: var(--code-bg);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        td, th {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+        
+        th {
+            background: var(--card-hover);
+            font-size: 14px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Gridler */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .grid-3 > div {
+            background: var(--card-hover);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(79, 184, 154, 0.1);
+        }
+
+        .grid-3 h3 {
+            font-size: 16px;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+
+        /* Rozetler */
+        .badge {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(79, 184, 154, 0.15);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .todo {
+            background: rgba(255, 107, 107, 0.15);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        
+        /* Footer */
+        footer {
+            padding: 20px 32px;
+            color: var(--muted);
+            font-size: 14px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            margin-top: 30px;
+        }
+
+        /* Details/Summary (Kapatılabilir Alan) */
+        details {
+            margin-bottom: 15px;
+        }
+        
+        details summary {
+            cursor: pointer;
+            padding: 12px 15px;
+            border-radius: 10px;
+            background: var(--card-hover);
+            border: 1px solid var(--border);
+            outline: none;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            list-style: none; /* Varsayılan oku kaldır */
+        }
+        
+        details summary::after {
+            font-family: 'Font Awesome 6 Free';
+            content: "\f078"; /* Chevron-down */
+            font-weight: 900;
+            margin-left: auto;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        details[open] summary::after {
+            content: "\f077"; /* Chevron-up */
+        }
+
+        details summary:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        /* Mobil Navigasyon İçin */
+        .nav-toggle {
+            display: none; /* Masaüstünde gizle */
+        }
+
+        /* Responsive Tasarım */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr; /* Tek sütun */
+                padding: 20px;
+                gap: 20px;
+            }
+
+            nav {
+                position: static;
+                height: auto;
+                margin-bottom: 20px;
+            }
+            
+            header {
+                padding: 15px 20px;
+            }
+            
+            /* Mobil Navigasyon Toggle */
+            .nav-toggle {
+                display: block;
+                background: var(--accent);
+                color: #0d1211;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 10px;
+                font-size: 16px;
+                cursor: pointer;
+                width: 100%;
+                margin-top: 15px;
+                font-weight: 700;
+            }
+            
+            nav ul {
+                display: none; /* Varsayılan olarak menüyü gizle */
+                flex-direction: column;
+                margin-top: 15px;
+            }
+
+            nav.open ul {
+                display: flex; /* Açık olduğunda göster */
+            }
+
+            nav h3 {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .logo {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            
+            h1 {
+                font-size: 18px;
+            }
+            
+            p.lead {
+                font-size: 13px;
+            }
+            
+            .card {
+                padding: 18px;
+            }
+            
+            h2 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">R</div>
+        <div>
+            <h1>GDD — "Rebatron" (Hikaye/Korku)</h1>
+            <p class="lead">Biyolüminesans temalı, birinci şahıs hikaye-korku GDD Revizyonu.</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav id="sidebar">
+            <h3>İçerik</h3>
+            <button class="nav-toggle" onclick="toggleNav()">
+                <i class="fas fa-bars"></i> Menüyü Aç/Kapat
+            </button>
+            <ul>
+                <li><i class="fas fa-microscope"></i> Kısa Özet & Tür</li>
+                <li><i class="fas fa-book"></i> Hikaye (Detay)</li>
+                <li><i class="fas fa-gamepad"></i> Oynanış (Core Mekanikler)</li>
+                <li><i class="fas fa-vial"></i> Biyolüminesans (Teknik)</li>
+                <li><i class="fas fa-ghost"></i> Düşmanlar & AI</li>
+                <li><i class="fas fa-map-marked-alt"></i> Bölümler & Harita</li>
+                <li><i class="fas fa-cubes"></i> Asset Listesi</li>
+                <li><i class="fas fa-tools"></i> Teknik Öneriler (UE5)</li>
+                <li><i class="fas fa-calendar-alt"></i> Görev & Takvim</li>
+                <li><i class="fas fa-star"></i> Demo Kapsamı & MVP</li>
+                <li><i class="fas fa-laptop-code"></i> UI / Kontroller</li>
+                <li><i class="fas fa-exclamation-triangle"></i> Riskler & Alternatifler</li>
+            </ul>
+        </nav>
+
+        <main>
+            <section class="card" id="ozet">
+                <h2><i class="fas fa-microscope"></i> 1. Kısa Özet</h2>
+                <p class="muted">Tür: Hikaye odaklı psikolojik korku / keşif. Bakış açısı: Birinci şahıs.</p>
+                <p>Oyuncu, <strong>Rebatron</strong> soyundan gelen torundur. Dede: <em>Dr. Marcus Rebatron</em> - iki meslektaşını öldürüp deneyleri sapkınlık yönünde çeviren bilim insanı. Deneyler, akıl hastalarını biyolüminesansla "gece görüşüyle görülebilen" varlıklara dönüştürmüştür. Oyunun amacı: laboratuvarı keşfetmek, gerçeği öğrenmek ve bir sonuca ulaşmak. (<strong>Ayinsiz</strong> ve kolay uygulanabilir sonlar tercih edildi.)</p>
+                <p class="badge">Ana Mekanik: Night Vision (Pil Yönetimi)</p>
+            </section>
+
+            <section class="card" id="hikaye">
+                <h2><i class="fas fa-book"></i> 2. Hikaye (Detay)</h2>
+                <p><strong>Başlangıç:</strong> Oyuncu evinde uyanır, depoda eski bir kağıt ("Rebatron Lab") bulur. Bu, oyunun tutorial açılışıdır.</p>
+                <p><strong>Gelişme:</strong> Rebatron Laboratuvarı'na gidilir. Laboratuvarın üç kanadı vardır: <em>Evelyn (Biyokimya), Henry (Genetik), Marcus (Nöro/Anomali)</em>. Marcus hayatta kalmış ve deneyleri manipüle etmiştir; Evelyn ve Henry kurban edilmiştir. Evelyn'in ruhu zaman zaman ipucu verir; Henry ise "Whisperer" haline dönüşmüştür.</p>
+                
+                <h3 class="section"><i class="fas fa-crossroads"></i> Final (Ayinsiz Kararlar)</h3>
+                <ul class="check">
+                    <li><strong>Laboratuvarı Yok Et (Basit Puzzle)</strong> → Lanet sonlanır, oyuncu kaçar.</li>
+                    <li><strong>Kanıt Topla ve Kaç</strong> → Oyuncu gerçeği ortaya çıkarır, medyaya/savcılığa verir; Marcus yakalanır.</li>
+                    <li><strong>Evelyn'in Yöntemini Kullan (Riskli Serbest Bırakma)</strong> → Denekleri serbest bırakır, laboratuvar güvenli ama belirsiz bir son.</li>
+                </ul>
+            </section>
+
+            <section class="card" id="oynanis">
+                <h2><i class="fas fa-gamepad"></i> 3. Core Mekanikler</h2>
+                <h3 class="section"><i class="fas fa-eye"></i> Gece Görüş (Night Vision)</h3>
+                <p>Oyuncunun ana aracı. Normalde denekler görünmez; night vision ile mavi-yeşil parıltılar halinde görünürler. Night vision'un <strong>pil/sıcaklık</strong> yönetimi olmalıdır (sınırlı kullanım).</p>
+                <ul class="check">
+                    <li><strong>Emissive Intensity:</strong> Deneklerin parlaklığı stres ve aktiviteyle artar; ses/ışık tetikleyince belirginleşir.</li>
+                    <li><strong>Spectral Band:</strong> NV amplifikasyonu ile uyumlu spektrumda net kontur; aksi halde yalnızca noktasal parıltılar görünür.</li>
+                    <li><strong>Temporal Flicker:</strong> Bazı denekler düşük frekanslı yanıp sönme gösterir (konum/pil ipucu).</li>
+                </ul>
+
+                <h3 class="section"><i class="fas fa-search"></i> Keşif & Etkileşim</h3>
+                <ul class="check">
+                    <li>Notlar / ses kayıtları / video kayıtları toplama (Hikaye için ana araç).</li>
+                    <li>Kilitli kapılar için basit şifre/puzzle sistemi.</li>
+                    <li>Fizik tabanlı etkileşimler: kutu çekme, jeneratör çalıştırma.</li>
+                </ul>
+
+                <h3 class="section"><i class="fas fa-volume-up"></i> Gizlilik & Ses Mekaniği</h3>
+                <p>Denekler sese duyarlıdır. Adım sesleri, objeye çarpma, kapı açma denekleri çeker. Yavaş yürümek veya objeleri sessiz şekilde kullanmak gerekir.</p>
+            </section>
+            
+            <section class="card" id="biyoluminesans">
+                <details>
+                    <summary><i class="fas fa-vial"></i> 3.5. Biyolüminesans — Bilimsel Detaylar (Derin)</summary>
+                    <p class="muted">Aşağıdaki kısım gerçek biyolüminesans mantığına dayanan, ancak oyun içi kurgusal teknolojiyle genişletilmiş teknik açıklamadır. Amacı, oyuna inandırıcı mekanikler eklemektir.</p>
+
+                    <h3 class="section">Temel Kavramlar</h3>
+                    <p>Biyolüminesans, canlı organizmaların kimyasal reaksiyonlar sonucunda kendi ışıklarını üretme yeteneğidir (<code>luciferin</code> + <code>luciferase</code>). Rebatron, deneklerin yaydığı ışığın spektral merkezini **700–850 nm (yakın-kızılötesi, NIR)** bandına kaydırdı. Bu bant insanın kon hücreleri tarafından algılanamaz.</p>
+                    
+                    <h3 class="section">Görünmezlik / Night Vision Bağlantısı</h3>
+                    <p>İnsan gözü NIR'ı algılayamaz. Night vision cihazları (image intensifier) ise zayıf ışığı ve NIR'ı algılayıp amplifiye ederek, görünür spektrumda (genellikle yeşil tonlarda) net bir kontur ve parlama ortaya çıkarır.</p>
+
+                    <h3 class="section">Laboratuvarın Yöntemi (Kurgusal)</h3>
+                    <ul class="check">
+                        <li><strong>Spektral Kaydırma:</strong> Genetik mühendislik ve kimyasal kofaktörlerle emisyonu görünür spektrumdan NIR bandına kaydırma.</li>
+                        <li><strong>Kuantum Noktaları:</strong> Işık verimini artırmak ve ömür süresini kontrol etmek için nanoparçacık konjugasyonu (daha keskin, dar bant emisyon).</li>
+                        <li><strong>Emisyon Pik Dalga Boyu:</strong> ~780–820nm (NV ile güçlü şekilde görülebilir).</li>
+                    </ul>
+                    
+                    <h3 class="section">Night Vision Cihazı — Teknik Özellikler (Oyun İçi)</h3>
+                    <table>
+                        <tr><th>Özellik</th><th>Oyun İçi Etki</th></tr>
+                        <tr><td>Spektral Hassasiyet</td><td>550–900nm (NIR destekli).</td></tr>
+                        <tr><td>Amplifikasyon (Gain)</td><td>Düşük: Uzak mesafe. Yüksek: Daha fazla noise (gürültü) ve detay. Pil tüketimini dengeler.</td></tr>
+                        <tr><td>Pil / Sıcaklık</td><td>Uzun kullanımda cihaz ısınır ve amplifikasyon düşer (görüntü bozulur) → <strong>Heat Meter cezası.</strong></td></tr>
+                    </table>
+                </details>
+            </section>
+
+            <section class="card" id="dusmanlar">
+                <h2><i class="fas fa-ghost"></i> 4. Düşmanlar & Yapay Zeka (Basit)</h2>
+                <div class="grid-3">
+                    <div>
+                        <h3>Whisperer (Henry)</h3>
+                        <p class="muted">Görünmez + ses taktikleri</p>
+                        <ul class="check">
+                            <li>Sadece night vision ile görünür.</li>
+                            <li>Ses kaynaklarına ilerler.</li>
+                            <li>Kısa mesafede ani saldırı (teleport/sıçrama hissi).</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Patient (Generic)</h3>
+                        <p class="muted">Basit takipçi</p>
+                        <ul class="check">
+                            <li>Düşük hızda takip eder.</li>
+                            <li>Görünürse yakın dövüş saldırısı yapar.</li>
+                            <li>Basit NavMesh pathfinding yeterli.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Marcus Form (Boss Tease)</h3>
+                        <p class="muted">Büyük silhouette + ışık patlamaları</p>
+                        <ul class="check">
+                            <li>Oyun sonu sahnesi için kısa, scripted mini-encounter.</li>
+                            <li>Çok karmaşık AI gerekmez.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card" id="bolumler">
+                <h2><i class="fas fa-map-marked-alt"></i> 5. Bölümler & Harita (Basitleştirilmiş)</h2>
+                <p>Toplam demo için önerilen akış ve süreler:</p>
+                <ol>
+                    <li><strong>Ev (Tutorial)</strong> — 3–5 dakika. Night vision'ı tanıtır, ilk notu buldurur.</li>
+                    <li><strong>Yol/Orman</strong> — 3–5 dakika. İlk karşılaşma (uzaktan bir patient gözüksün).</li>
+                    <li><strong>Laboratuvar Giriş Kat</strong> — 10–15 dakika. Evelyn ve Henry kayıtları, 1 puzzle, 1 stalking encounter.</li>
+                    <li><strong>Alt Kat / Depo</strong> — 5–8 dakika. Boss tease, karar anı (final seçim).</li>
+                </ol>
+                <p class="muted">Her bölüm küçük ve tek bir detaylı sahne (sekanstan) oluşmalıdır.</p>
+            </section>
+
+            <section class="card" id="teknik">
+                <h2><i class="fas fa-tools"></i> 7. Teknik Öneriler (UE5 Odaklı)</h2>
+                <ul class="check">
+                    <li>Blueprint ile prototip kur: Night Vision toggle + battery/heat variable.</li>
+                    <li>Post Process Volume ile night vision; deneklere emissive materyal ve 'flicker' özelliği ekle.</li>
+                    <li>AI: NavMesh + simple behavior tree. Whisperer için Perception Component (Sound Stimuli).</li>
+                    <li>Level Streaming kullan: her kanadı küçük alt-level yap, bellek yönetimi kolaylaşır.</li>
+                    <li>Kanal: Hazır ışıklandırma (Lumen/Nanite) dikkatli kullanılmalı, düşük ayarlarda performans test et.</li>
+                </ul>
+            </section>
+            
+            <section class="card" id="takvim">
+                <h2><i class="fas fa-calendar-alt"></i> 8. Görev Listesi & 12 Haftalık Takvim (Solo)</h2>
+                <p class="muted">Haftalık hedefler, part-time günde 3–4 saat çalışmaya uygun.</p>
+                <ol>
+                    <li><strong>Hafta 1:</strong> GDD son hali, referans moodboard, temel proje kurulumu (UE5). </li>
+                    <li><strong>Hafta 2–3:</strong> Prototip: hareket, night vision/heat, ses sistemi.</li>
+                    <li><strong>Hafta 4–5:</strong> Ev + orman level tasarımı, temel environment assetleri (Quixel/Marketplace).</li>
+                    <li><strong>Hafta 6–7:</strong> Laboratuvar giriş katı, puzzle sistemi, not kayıtları.</li>
+                    <li><strong>Hafta 8:</strong> AI: Whisperer ve basic patient testleri (AI davranışını cilala).</li>
+                    <li><strong>Hafta 9:</strong> Ses & atmosfer finalizasyonu, UI elemanları.</li>
+                    <li><strong>Hafta 10:</strong> Alt kat / final encounter & seçim sahnesi.</li>
+                    <li><strong>Hafta 11–12:</strong> Test, polish, performans optimizasyonu ve paketleme (demo build).</li>
+                </ol>
+            </section>
+
+            <section class="card" id="mvp">
+                <h2><i class="fas fa-star"></i> 9. Demo Kapsamı (MVP)</h2>
+                <p>Hedef: <strong>10–20 dakikalık oynanış</strong>, 1 ana düşman (Whisperer), 1 puzzle, 6–10 toplanabilir kayıt, finalde 3 seçim (ritüel yok).</p>
+                <p class="badge">Başarı Kriteri: Oyuncu demo sonunda laboratuvarın geçmişini anlayacak ve en az bir final seçimi yapabilecek.</p>
+            </section>
+
+            <section class="card" id="ui">
+                <h2><i class="fas fa-laptop-code"></i> 10. UI / Kontroller</h2>
+                <h3 class="section">PC Kontroller (Öneri)</h3>
+                <table>
+                    <tr><th>İşlem</th><th>Tuş</th></tr>
+                    <tr><td>İlerleme / Bakma</td><td>W A S D + Mouse</td></tr>
+                    <tr><td>Night Vision Aç/Kapa</td><td><code>F</code></td></tr>
+                    <tr><td>Koş</td><td><code>Shift</code></td></tr>
+                    <tr><td>İnteraksiyon</td><td><code>E</code></td></tr>
+                    <tr><td>Sessiz Yürü</td><td><code>Ctrl</code></td></tr>
+                </table>
+                <p>UI: Minimalist olmalı — üst köşede **Night Vision Pil/Heat Barı**, alt köşede toplanan kayıt sayacı, ekran ortasında etkileşim ipucu.</p>
+            </section>
+
+            <section class="card" id="riskler">
+                <h2><i class="fas fa-exclamation-triangle"></i> 11. Riskler & Alternatifler</h2>
+                <ul class="check">
+                    <li><strong>Zaman:</strong> Her şeyi sıfırdan yapmak uzun sürer → **Çözüm:** Hazır asset kullanmak (Quixel/Marketplace).</li>
+                    <li><strong>AI Karmaşıklığı:</strong> Çok sofistike AI için zaman yok → **Çözüm:** Basit Behavior Tree ile hissiyatı sağlamaya odaklan (Ses odaklı taktikler).</li>
+                    <li><strong>Performans:</strong> UE5'in yeni teknolojileri → **Çözüm:** Lumen/Nanite dikkatli kullanılmalı, düşük-end testleri yapılmalı.</li>
+                    <li><strong>Hikaye Yoğunluğu:</strong> Cutscene'ler zaman alır → **Çözüm:** Bilgiyi notlar/ses kayıtları üzerinden ver, cutscene'leri sınırlı tut.</li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <h2><i class="fas fa-list-check"></i> Ekler: Hızlı Checklist (İndirilebilir Yapılacaklar)</h2>
+                <ul class="check">
+                    <li>Projeyi UE5'te oluştur (Template: First Person).</li>
+                    <li>Blueprint: NightVisionActor (toggle, battery/heat logic).</li>
+                    <li>NavMesh + simple AI controller (behavior: investigateSound -> follow -> attack).</li>
+                    <li>Hazır ambient pack + birkaç SFX satın al/entegre et.</li>
+                    <li>1 demo build (PC) oluştur — test & feedback al.</li>
+                </ul>
+            </section>
+
+            <footer class="card">
+                <strong>Geliştirici Notu:</strong> İstenirse bu GDD, haftalık görevlere, asset listesi görselleriyle birlikte eklenir ve .zip formatında indirilebilir hale getirilebilir.
+            </footer>
+        </main>
+    </div>
+    
+    <script>
+        // Mobil menü açma/kapama fonksiyonu
+        function toggleNav() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Navigasyon tıklama olayları (Sayfa içi kaydırma)
+        document.querySelectorAll('nav ul li').forEach(item => {
+            item.addEventListener('click', event => {
+                const index = Array.from(item.parentNode.children).indexOf(item);
+                const sections = document.querySelectorAll('main section');
+                
+                if (sections[index]) {
+                    sections[index].scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Mobil cihazlarda menüyü kapat
+                    if (window.innerWidth <= 1024) {
+                        document.getElementById('sidebar').classList.remove('open');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
