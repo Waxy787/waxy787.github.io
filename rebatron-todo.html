@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Çoklu Görev Listeleri | Rebatron (Firebase)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center p-5">
+
+<h1 class="text-3xl font-bold text-green-400 mb-6" id="headerTitle">Görev Listeleri Yöneticisi</h1>
+<p class="text-sm text-yellow-400 mb-4" id="statusMessage">Anonim olarak bağlanılıyor...</p>
+
+<div id="mainScreen" class="w-full max-w-xl hidden">
+    <div class="bg-gray-800 p-5 rounded-xl shadow-lg mb-5 flex gap-2">
+        <input type="text" id="newListName" placeholder="Yeni liste adı..." class="flex-1 p-3 rounded-lg bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-400">
+        <button onclick="createNewList()" class="bg-green-400 hover:bg-green-500 text-gray-900 px-4 py-2 rounded-lg flex items-center gap-1">
+            <i class="bi bi-plus-lg"></i> Liste Oluştur
+        </button>
+    </div>
+    <div class="bg-gray-800 p-5 rounded-xl shadow-lg">
+        <h2 class="text-xl font-semibold mb-3">Listelerim</h2>
+        <ul id="listOverview" class="space-y-3"></ul>
+    </div>
+</div>
+
+<div id="detailScreen" class="w-full max-w-xl hidden">
+    <button onclick="goBackToMainScreen()" class="mb-4 text-blue-400 hover:text-blue-300 flex items-center gap-1">
+        <i class="bi bi-arrow-left"></i> Tüm Listelere Dön
+    </button>
+    
+    <div class="bg-gray-800 p-5 rounded-xl shadow-lg mb-5 flex gap-2">
+        <input type="text" id="newTask" placeholder="Yeni görev ekle..." class="flex-1 p-3 rounded-lg bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-400">
+        <button onclick="addTask()" class="bg-green-400 hover:bg-green-500 text-gray-900 px-4 py-2 rounded-lg flex items-center gap-1">
+            <i class="bi bi-plus-lg"></i> Ekle
+        </button>
+    </div>
+
+    <div class="bg-gray-800 p-5 rounded-xl shadow-lg mb-5">
+        <ul id="taskList" class="space-y-3"></ul>
+    </div>
+    
+    <div class="bg-gray-800 p-5 rounded-xl shadow-lg flex flex-col gap-3">
+        <button onclick="copyShareLink()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2 font-semibold">
+            <i class="bi bi-share-fill"></i> Bu Listeyi Paylaş
+        </button>
+    </div>
+</div>
+
+<script>
+// ====================================================================
+// SİZİN FIREBASE AYARLARINIZ
+// ====================================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyCaldhGtJPsM3ANC0ApPTF59w7FjysH1Yo",
+    authDomain: "todo-94cc3.firebaseapp.com",
+    projectId: "todo-94cc3",
+    storageBucket: "todo-94cc3.firebasestorage.app",
+    messagingSenderId: "121919752500",
+    appId: "1:121919752500:web:cd06732ea10db736a27d61",
+    databaseURL: "https://todo-94cc3-default-rtdb.firebaseio.com" 
+};
+
+// ====================================================================
+// KRİTİK BAŞLATMA: Firebase'i HİÇBİR ŞEYDEN ÖNCE BAŞLATIN
+// ====================================================================
+try {
+    // app/no-app hatasını çözmek için ilk adım
+    firebase.initializeApp(firebaseConfig); 
+} catch (error) {
+    console.error("Firebase Başlatma Hatası:", error);
+    document.getElementById('statusMessage').textContent = "HATA: Firebase başlatılamadı. Konsolu kontrol edin.";
+}
+
+// ====================================================================
+// GLOBAL DEĞİŞKENLER VE REFERANSLAR (BAŞLATMA SONRASI)
+// ====================================================================
+let CURRENT_USER_ID = null;
+let CURRENT_LIST_ID = null; 
+
+// Firebase referansları artık güvenle oluşturulabilir
+const database = firebase.database();
+const auth = firebase.auth();
+
+// ====================================================================
+// BAŞLANGIÇ VE YÖNLENDİRME FONKSİYONLARI
+// ====================================================================
+
+// 1. Anonim Girişi Dinle
+function setupAuthListener() {
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            CURRENT_USER_ID = user.uid;
+            document.getElementById('statusMessage').textContent = `Bağlandı (ID: ${CURRENT_USER_ID.substring(0, 8)}...)`;
+            loadUserLists();
+        } else {
+            signInAnonymously();
+        }
+    });
+}
+
+// 2. Anonim Giriş Yap
+function signInAnonymously() {
+    auth.signInAnonymously()
+        .catch((error) => {
+            console.error("Anonim giriş hatası:", error);
+            document.getElementById('statusMessage').textContent = "HATA: Giriş yapılamadı.";
+        });
+}
+
+// 3. URL'de paylaşılan liste var mı kontrol et
+function checkURLForSharedList() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const listId = urlParams.get('listId');
+
+    if (listId) {
+        CURRENT_LIST_ID = listId;
+        history.replaceState(null, '', window.location.pathname);
+    }
+}
+
+// 4. Ekranlar Arasında Geçiş
+function goToDetailScreen(listId, listName) {
+    CURRENT_LIST_ID = listId;
+    document.getElementById('headerTitle').textContent = listName;
+    document.getElementById('mainScreen').classList.add('hidden');
+    document.getElementById('detailScreen').classList.remove('hidden');
+    loadListItems(); // Görevleri yüklemeye başla
+}
+
+function goBackToMainScreen() {
+    if(CURRENT_LIST_ID) {
+        // Dinleyicileri temizle
+        database.ref(`tasks/${CURRENT_LIST_ID}/items`).off();
+    }
+    
+    CURRENT_LIST_ID = null;
+    document.getElementById('headerTitle').textContent = 'Görev Listeleri Yöneticisi';
+    document.getElementById('detailScreen').classList.add('hidden');
+    document.getElementById('mainScreen').classList.remove('hidden');
+}
+
+// ====================================================================
+// A. ANA EKRAN (LİSTE YÖNETİMİ) FONKSİYONLARI
+// ====================================================================
+
+// 1. Listeleri Yükle (Gerçek Zamanlı)
+function loadUserLists() {
+    if (!CURRENT_USER_ID) return;
+
+    // Kullanıcının sahip olduğu/paylaşılan tüm listeleri dinle
+    database.ref(`users/${CURRENT_USER_ID}/lists`).on('value', (snapshot) => {
+        const lists = snapshot.val();
+        renderUserLists(lists);
+    });
+
+    // Paylaşılan listeyi kullanıcının listelerine ekle (Eğer URL'den geldiyse)
+    if (CURRENT_LIST_ID) {
+        database.ref(`lists/${CURRENT_LIST_ID}`).once('value', (snapshot) => {
+            const listData = snapshot.val();
+            if (listData) {
+                // Listeyi kullanıcının listelerine ekle
+                database.ref(`users/${CURRENT_USER_ID}/lists/${CURRENT_LIST_ID}`).set({
+                    name: listData.name
+                }).then(() => {
+                    // Listeyi otomatik aç
+                    goToDetailScreen(CURRENT_LIST_ID, listData.name);
+                });
+            }
+        });
+    } else {
+        document.getElementById('mainScreen').classList.remove('hidden');
+    }
+}
+
+// 2. Listeleri Render Et (GÜNCELLENDİ: Sahip/Ayrıl Butonu)
+function renderUserLists(lists) {
+    const listOverview = document.getElementById('listOverview');
+    listOverview.innerHTML = '';
+    
+    const listsArray = lists ? Object.entries(lists).map(([key, value]) => ({...value, id: key})) : [];
+
+    listsArray.forEach(list => {
+        // Her listenin sahibini kontrol etmek için ana listeye bak
+        database.ref(`lists/${list.id}/owner`).once('value', (snapshot) => {
+            const ownerId = snapshot.val();
+            const isOwner = ownerId === CURRENT_USER_ID;
+            
+            const li = document.createElement('li');
+            li.className = "flex justify-between items-center p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all";
+
+            li.innerHTML = `
+                <span class="text-gray-100 font-semibold cursor-pointer" onclick="goToDetailScreen('${list.id}', '${list.name}')">${list.name}</span>
+                <div class="flex items-center gap-2">
+                    ${isOwner ? 
+                        // Sahipse: Listeyi tamamen silme butonu
+                        `<button class="text-red-500 hover:text-red-400" onclick="deleteList('${list.id}')" title="Listeyi tamamen siler (Sadece Sahip)">
+                            <i class="bi bi-trash"></i>
+                        </button>` 
+                        : 
+                        // Sahip değilse: Listeden ayrılma butonu
+                        `<button class="text-yellow-500 hover:text-yellow-400" onclick="leaveList('${list.id}')" title="Bu listeyi ana ekranımdan kaldır">
+                             <i class="bi bi-person-x-fill"></i> 
+                           </button>`
+                    }
+                </div>
+            `;
+            listOverview.appendChild(li);
+        });
+    });
+}
+
+// 3. Yeni Liste Oluştur
+function createNewList() {
+    const input = document.getElementById('newListName');
+    const listName = input.value.trim();
+    if (listName && CURRENT_USER_ID) {
+        
+        const newListRef = database.ref('lists').push();
+        const listId = newListRef.key;
+
+        // 1. Ana listeye sahibiyle birlikte kaydet
+        newListRef.set({ 
+            name: listName,
+            owner: CURRENT_USER_ID, 
+            createdAt: Date.now()
+        }).then(() => {
+            // 2. Kullanıcının listelerine ekle
+            database.ref(`users/${CURRENT_USER_ID}/lists/${listId}`).set({
+                name: listName
+            });
+            input.value = '';
+            goToDetailScreen(listId, listName);
+        });
+    }
+}
+
+// 4. Liste Silme Fonksiyonu (GÜNCELLENDİ: Paylaşım temizliği için bir yaklaşım eklendi)
+function deleteList(listId) {
+    if (!confirm('Bu listeyi ve içindeki tüm görevleri silmek istediğine emin misin? Bu işlem geri alınamaz.')) {
+        return;
+    }
+
+    // 1. Listenin sahibini kontrol et
+    database.ref(`lists/${listId}/owner`).once('value', (snapshot) => {
+        const ownerId = snapshot.val();
+
+        if (ownerId === CURRENT_USER_ID) {
+            
+            const updates = {};
+            
+            // 2. Ana listeyi ve görevleri sil
+            updates[`/lists/${listId}`] = null; 
+            updates[`/tasks/${listId}`] = null; 
+            
+            // 3. (Gelişmiş Temizlik Yaklaşımı) Listenin silindiğini duyuracak geçici bir flag ekle
+            // Bu flag, diğer kullanıcıların listelerinin manuel olarak temizlenmesine yardımcı olabilir.
+            updates[`/lists_to_remove/${listId}`] = true;
+            
+            // 4. Sahibinin ana ekrandaki kaydını sil
+            updates[`/users/${CURRENT_USER_ID}/lists/${listId}`] = null;
+
+            database.ref().update(updates)
+                .then(() => {
+                    alert('Liste başarıyla silindi. Paylaşılan listeler artık erişilemez durumdadır.');
+                    goBackToMainScreen();
+                })
+                .catch(error => {
+                    console.error("Liste silinirken hata:", error);
+                    alert('Liste silinirken bir hata oluştu.');
+                });
+
+        } else {
+            alert('Üzgünüz, sadece listeyi oluşturan kişi silebilir.');
+        }
+    });
+}
+
+// 5. Listeden Ayrılma Fonksiyonu (YENİ EKLENDİ)
+function leaveList(listId) {
+    if (confirm('Bu listeyi kendi ana ekranınızdan kaldırmak istediğinizden emin misiniz?')) {
+        database.ref(`users/${CURRENT_USER_ID}/lists/${listId}`).remove()
+            .then(() => {
+                alert('Liste, ana ekranınızdan kaldırıldı.');
+                // loadUserLists fonksiyonu zaten dinlediği için ekran otomatik güncellenir.
+            })
+            .catch(error => {
+                console.error("Listeden ayrılma hatası:", error);
+            });
+    }
+}
+
+// ====================================================================
+// B. DETAY EKRAN (GÖREV YÖNETİMİ) FONKSİYONLARI (DEĞİŞMEDİ)
+// ====================================================================
+
+// 1. Görevleri Yükle (Gerçek Zamanlı)
+function loadListItems() {
+    if (!CURRENT_LIST_ID) return;
+    
+    // Header'ı güncelle (Liste adı)
+    database.ref(`lists/${CURRENT_LIST_ID}/name`).once('value', (snapshot) => {
+        document.getElementById('headerTitle').textContent = snapshot.val() || "Liste Detayı";
+    });
+    
+    // Görevleri dinle (Realtime)
+    database.ref(`tasks/${CURRENT_LIST_ID}/items`).on('value', (snapshot) => {
+        const data = snapshot.val();
+        renderListItems(data);
+    });
+}
+
+// 2. Görevleri Render Et
+function renderListItems(tasksData){
+    const taskList = document.getElementById('taskList');
+    taskList.innerHTML = '';
+    
+    const tasksArray = tasksData ? Object.entries(tasksData).map(([key, value]) => ({...value, key})) : [];
+
+    tasksArray.forEach((task) => {
+        const li = document.createElement('li');
+        li.className = "flex justify-between items-center p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all";
+
+        li.innerHTML = `
+            <div class="flex items-center gap-3">
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" ${task.completed ? 'checked' : ''} onchange="toggleComplete('${task.key}', ${task.completed})">
+                    <div class="w-6 h-6 bg-gray-800 border-2 border-gray-500 rounded-full peer-checked:bg-green-400 peer-checked:border-green-400 transition-all flex items-center justify-center">
+                        <i class="bi bi-check text-gray-900 opacity-0 peer-checked:opacity-100 transition-opacity"></i>
+                    </div>
+                </label>
+                <span class="${task.completed ? 'line-through text-gray-400' : 'text-gray-100'} text-sm sm:text-base">${task.text}</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="text-yellow-400 hover:text-yellow-300" onclick="editTask('${task.key}', '${task.text}')"><i class="bi bi-pencil"></i></button>
+                <button class="text-red-500 hover:text-red-400" onclick="deleteTask('${task.key}')"><i class="bi bi-trash"></i></button>
+            </div>
+        `;
+        taskList.appendChild(li);
+    });
+}
+
+// 3. Görev Ekle
+function addTask(){
+    const input = document.getElementById('newTask');
+    const text = input.value.trim();
+    if(text && CURRENT_LIST_ID){
+        database.ref(`tasks/${CURRENT_LIST_ID}/items`).push({ 
+            text: text, 
+            completed: false,
+            timestamp: Date.now(),
+            createdBy: CURRENT_USER_ID
+        });
+        input.value='';
+    }
+}
+
+// 4. Görev Düzenle
+function editTask(key, currentText){
+    const newText = prompt('Görevi düzenle:', currentText);
+    if(newText !== null && newText.trim() !== currentText && CURRENT_LIST_ID){
+        database.ref(`tasks/${CURRENT_LIST_ID}/items/${key}`).update({ text: newText.trim() });
+    }
+}
+
+// 5. Görev Sil
+function deleteTask(key){
+    if(confirm('Bu görevi silmek istediğine emin misin?') && CURRENT_LIST_ID){
+        database.ref(`tasks/${CURRENT_LIST_ID}/items/${key}`).remove();
+    }
+}
+
+// 6. Tamamla/Tamamlanmadı durumunu değiştir
+function toggleComplete(key, currentStatus){
+    if(CURRENT_LIST_ID){
+        database.ref(`tasks/${CURRENT_LIST_ID}/items/${key}`).update({ completed: !currentStatus });
+    }
+}
+
+// 7. Paylaşım Linkini Kopyala
+function copyShareLink() {
+    if (!CURRENT_LIST_ID) return;
+    
+    const listId = CURRENT_LIST_ID;
+    const shareLink = `${window.location.origin}${window.location.pathname}?listId=${listId}`;
+    
+    navigator.clipboard.writeText(shareLink).then(() => {
+        alert("Paylaşım Bağlantısı Kopyalandı! Arkadaşınızla paylaşın. Linke tıkladıklarında, liste onların ana ekranına da eklenecektir.");
+    }).catch(err => {
+        console.error('Kopyalama hatası:', err);
+        alert("Bağlantıyı kopyalayamadı. Elle kopyalayın: " + shareLink);
+    });
+}
+
+// ====================================================================
+// BAŞLANGIÇ
+// ====================================================================
+setupAuthListener(); 
+checkURLForSharedList();
+</script>
+
+</body>
+</html>
