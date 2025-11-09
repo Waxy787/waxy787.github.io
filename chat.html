@@ -26,7 +26,7 @@
 <div id="app-container" class="w-full max-w-lg h-full sm:h-[90vh] sm:rounded-xl shadow-2xl flex flex-col bg-gray-800 text-gray-100">
     <header class="p-4 bg-indigo-600 rounded-t-xl shadow-lg">
         <h1 class="text-2xl font-bold">Gemini Sohbet Odası</h1>
-        <div id="user-info" class="text-sm mt-1 text-indigo-200">Bağlanıyor...</div>
+        <div id="user-info" class="text-sm mt-1 text-indigo-200">Giriş yapılıyor...</div>
     </header>
     <div id="messages-container" class="flex-grow p-4 space-y-4 overflow-y-auto"></div>
     <div id="status-message" class="p-4 text-center text-yellow-400 hidden">Bağlanıyor...</div>
@@ -40,10 +40,10 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// Direkt config tanımla, amk
+// Firebase config
 const firebaseConfig = {
     apiKey: "AIzaSyA1pgPPENrAn_5hOt-Uy1qi2-qTejS_tFg",
     authDomain: "rebachat-fe0b8.firebaseapp.com",
@@ -57,8 +57,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
 let currentUserId = null;
+let currentUserName = null;
 
 const messagesContainer = document.getElementById('messages-container');
 const messageForm = document.getElementById('message-form');
@@ -67,6 +69,7 @@ const sendButton = document.getElementById('send-button');
 const userInfoDiv = document.getElementById('user-info');
 const statusMessageDiv = document.getElementById('status-message');
 
+// Mesaj render
 function renderMessage(message, userId) {
     if (!message.text) return '';
     const isCurrentUser = message.userId === userId;
@@ -97,13 +100,12 @@ function scrollToBottom() {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
+// Mesaj listener
 function setupMessageListener() {
     const q = query(collection(db, 'messages'), orderBy('createdAt', 'asc'));
     onSnapshot(q, (snapshot) => {
-        messagesContainer.innerHTML = ''; // Temizle
-        snapshot.docs.forEach(doc => {
-            renderMessage(doc.data(), currentUserId);
-        });
+        messagesContainer.innerHTML = '';
+        snapshot.docs.forEach(doc => renderMessage(doc.data(), currentUserId));
         scrollToBottom();
     }, (error) => {
         console.error("Mesaj dinlenirken hata:", error);
@@ -112,6 +114,7 @@ function setupMessageListener() {
     });
 }
 
+// Mesaj gönder
 async function sendMessage(e) {
     e.preventDefault();
     const text = messageInput.value.trim();
@@ -121,7 +124,7 @@ async function sendMessage(e) {
             text,
             createdAt: serverTimestamp(),
             userId: currentUserId,
-            username: currentUserId.substring(0,8)
+            username: currentUserName
         });
         messageInput.value = '';
         scrollToBottom();
@@ -134,26 +137,26 @@ async function sendMessage(e) {
 
 messageForm.addEventListener('submit', sendMessage);
 
-// Firebase anonim auth
-onAuthStateChanged(auth, user => {
-    if(user) {
+// Google Login
+async function signInWithGoogle() {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
         currentUserId = user.uid;
-        userInfoDiv.innerHTML = `Kullanıcı ID'niz: <strong class="text-indigo-100">${currentUserId}</strong>`;
+        currentUserName = user.displayName || 'Anonim';
+        userInfoDiv.innerHTML = `Hoşgeldiniz, <strong>${currentUserName}</strong>`;
         sendButton.disabled = false;
         statusMessageDiv.classList.add('hidden');
         setupMessageListener();
-    } else {
-        currentUserId = null;
-        sendButton.disabled = true;
+    } catch (err) {
+        console.error("Google giriş hatası:", err);
+        statusMessageDiv.textContent = "Giriş yapılamadı: " + err.message;
+        statusMessageDiv.classList.remove('hidden');
     }
-});
+}
 
-// Anonim giriş
-signInAnonymously(auth).catch(err => {
-    console.error("Anonim giriş hatası:", err);
-    userInfoDiv.textContent = 'Giriş yapılamadı: ' + err.message;
-    statusMessageDiv.classList.remove('hidden');
-});
+// Sayfa yüklendiğinde giriş popup'u aç
+signInWithGoogle();
 </script>
 </body>
 </html>
