@@ -3,76 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Özel Anonim Sohbet (DM, Arkadaşlar)</title>
+<title>RebaChat</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 body { font-family: sans-serif; background:#1f2937; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
-#app { height: 100vh; max-height: 900px; }
-#chat-area::-webkit-scrollbar, #inbox-list::-webkit-scrollbar, #messages-container::-webkit-scrollbar { width: 8px; }
-#chat-area::-webkit-scrollbar-thumb, #inbox-list::-webkit-scrollbar-thumb, #messages-container::-webkit-scrollbar-thumb { background:#4b5563; border-radius:4px; }
-#chat-area::-webkit-scrollbar-track, #inbox-list::-webkit-scrollbar-track, #messages-container::-webkit-scrollbar-track { background:#1f2937; }
+#messages-container::-webkit-scrollbar{width:8px;}
+#messages-container::-webkit-scrollbar-thumb{background:#4b5563;border-radius:4px;}
+#messages-container::-webkit-scrollbar-track{background:#1f2937;}
 </style>
 </head>
 <body>
-<div id="app" class="w-full max-w-4xl flex flex-col sm:flex-row bg-gray-800 text-gray-100 rounded-xl shadow-2xl overflow-hidden">
-    <div id="inbox-panel" class="w-full sm:w-1/3 p-4 border-r border-gray-700 flex flex-col max-h-full overflow-y-auto">
-        <h2 class="text-xl font-bold mb-4 text-indigo-400">DM Kutusu / Arkadaşlar</h2>
-        
-        <div id="request-badge" class="mb-4 p-3 bg-yellow-600/30 text-yellow-300 rounded-lg cursor-pointer hidden">
-            Yeni Arkadaşlık İstekleri (<span id="request-count">0</span>)
-        </div>
-
-        <input type="text" id="user-search" placeholder="Nick ile kullanıcı ara..." class="p-2 mb-3 rounded-lg bg-gray-700 border border-gray-600 focus:border-indigo-500 text-white">
-        
-        <div id="inbox-list" class="flex-grow space-y-2 overflow-y-auto">
-            </div>
-
-        <button id="show-all-users" class="mt-4 p-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm">Tüm Kullanıcıları Göster</button>
-    </div>
-
-    <div id="chat-area" class="w-full sm:w-2/3 flex flex-col p-4">
-        <header id="chat-header" class="p-3 bg-gray-700 rounded-lg mb-4 hidden">
-            <h3 class="text-xl font-bold text-white">Sohbet: <span id="chat-target-name"></span></h3>
-        </header>
-
-        <div id="messages-container" class="flex-grow space-y-4 overflow-y-auto p-2 mb-4 bg-gray-700 rounded-lg">
-            <div id="initial-message" class="text-center text-gray-400 mt-10">
-                Bir sohbete başlamak için soldan bir kullanıcı seçin.
-            </div>
-        </div>
-
-        <div class="p-2 bg-gray-700 rounded-b-xl">
-            <form id="message-form" class="flex space-x-2">
-                <input type="text" id="message-input" placeholder="Bir mesaj yazın..." required 
-                       class="flex-grow p-3 rounded-lg border-2 border-gray-600 focus:border-indigo-500 bg-gray-600 text-white placeholder-gray-400" disabled>
-                <button type="submit" id="send-button" 
-                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-5 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    Gönder
-                </button>
-            </form>
-        </div>
-        
-        <footer class="mt-4 text-sm text-center text-indigo-300 border-t border-gray-700 pt-2">
-            <div id="user-info">Giriş yapılıyor...</div>
-        </footer>
-    </div>
-</div>
-
-<div id="modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
-    <div class="bg-gray-800 rounded-xl p-6 w-11/12 md:w-1/2 shadow-2xl">
-        <h3 id="modal-title" class="text-2xl font-bold mb-4 text-indigo-400"></h3>
-        <div id="modal-content" class="max-h-96 overflow-y-auto space-y-3">
-            </div>
-        <button id="modal-close" class="mt-4 p-2 bg-gray-600 hover:bg-gray-500 rounded-lg w-full">Kapat</button>
+<div id="app" class="w-full max-w-lg h-full sm:h-[90vh] flex flex-col bg-gray-800 text-gray-100 rounded-xl shadow-2xl">
+    <header class="p-4 bg-indigo-600 rounded-t-xl">
+        <h1 class="text-2xl font-bold">Anonim Sohbet</h1>
+        <div id="user-info" class="text-sm mt-1 text-indigo-200">Giriş yapılıyor...</div>
+    </header>
+    <div id="messages-container" class="flex-grow p-4 space-y-4 overflow-y-auto"></div>
+    <div class="p-4 bg-gray-700 rounded-b-xl">
+        <form id="message-form" class="flex space-x-2">
+            <input type="text" id="message-input" placeholder="Bir mesaj yazın..." required class="flex-grow p-3 rounded-lg border-2 border-gray-600 focus:border-indigo-500 bg-gray-600 text-white placeholder-gray-400">
+            <button type="submit" id="send-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-5 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">Gönder</button>
+        </form>
     </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, setDoc, getDoc, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-// 🔥 KENDİ AYARLARINIZLA DEĞİŞTİRİN
+// Firebase config
 const firebaseConfig = {
     apiKey: "AIzaSyA1pgPPENrAn_5hOt-Uy1qi2-qTejS_tFg",
     authDomain: "rebachat-fe0b8.firebaseapp.com",
@@ -88,58 +48,16 @@ const auth = getAuth(app);
 
 let currentUserId = null;
 let currentUserName = localStorage.getItem('nick') || null;
-let activeChatId = null;
-let activeChatTarget = null;
-let unsubscribeMessages = null; // Aktif mesaj dinleyicisini tutar
 
-// DOM Elementleri
 const messagesContainer = document.getElementById('messages-container');
 const messageForm = document.getElementById('message-form');
 const messageInput = document.getElementById('message-input');
 const sendButton = document.getElementById('send-button');
 const userInfoDiv = document.getElementById('user-info');
-const chatHeader = document.getElementById('chat-header');
-const chatTargetName = document.getElementById('chat-target-name');
-const inboxList = document.getElementById('inbox-list');
-const requestBadge = document.getElementById('request-badge');
-const requestCount = document.getElementById('request-count');
-const modal = document.getElementById('modal');
-const modalTitle = document.getElementById('modal-title');
-const modalContent = document.getElementById('modal-content');
-const modalClose = document.getElementById('modal-close');
-const userSearchInput = document.getElementById('user-search');
-const showAllUsersButton = document.getElementById('show-all-users');
 
-// --- UTILITY FONKSİYONLARI ---
-
-/** İki ID'den DM ID'si oluşturur (sıralı). */
-function getDmId(id1, id2) {
-    return [id1, id2].sort().join('_');
-}
-
-function scrollToBottom(){ messagesContainer.scrollTop = messagesContainer.scrollHeight; }
-
-function openModal(title, contentHtml) {
-    modalTitle.textContent = title;
-    modalContent.innerHTML = contentHtml;
-    modal.classList.remove('hidden');
-}
-
-function closeModal() {
-    modal.classList.add('hidden');
-    // Eğer tüm kullanıcılar listesi açıksa, arama çubuğunu temizle
-    if(userSearchInput.value) {
-        userSearchInput.value = '';
-        renderInboxAndFriends(); // Tüm kullanıcı listesi kapandıktan sonra DM listesine geri dön
-    }
-}
-
-// --- ARABİRİM RENDER FONKSİYONLARI ---
-
-/** Mesajı ekrana çizer. */
-function renderMessage(message){
+function renderMessage(message, userId){
     if(!message.text) return '';
-    const isCurrentUser = message.userId === currentUserId;
+    const isCurrentUser = message.userId === userId;
     const alignClass = isCurrentUser ? 'justify-end' : 'justify-start';
     const messageBg = isCurrentUser ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-100';
     const usernameText = message.username || 'Anonim';
@@ -162,300 +80,54 @@ function renderMessage(message){
     messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
 }
 
-// --- DM VE MESAJ DİNLEYİCİLERİ ---
+function scrollToBottom(){ messagesContainer.scrollTop = messagesContainer.scrollHeight; }
 
-/** Seçili DM odasının mesajlarını dinler. */
-function setupMessageListener(dmId){
-    // Önceki dinleyiciyi sonlandır
-    if (unsubscribeMessages) {
-        unsubscribeMessages();
-    }
-    
-    messagesContainer.innerHTML = '';
-    document.getElementById('initial-message').classList.add('hidden');
-    
-    const q = query(collection(db, 'dms', dmId, 'messages'), orderBy('createdAt', 'asc'));
-    
-    unsubscribeMessages = onSnapshot(q, snapshot => {
-        // Yalnızca yeni mesajları eklemek için diff kontrolü yapılabilir,
-        // ancak basitlik için şimdilik her seferinde temizleyip yeniden çiziyoruz.
-        messagesContainer.innerHTML = ''; 
-        snapshot.docs.forEach(doc => renderMessage(doc.data()));
-        scrollToBottom();
-    }, err => {
-        console.error("DM mesajları dinlenirken hata:", err);
-    });
-}
-
-/** Sohbet odasını başlatır. */
-function startChat(targetUser){
-    if(activeChatTarget && activeChatTarget.uid === targetUser.uid) return; // Zaten bu sohbetteyiz
-
-    activeChatTarget = targetUser;
-    activeChatId = getDmId(currentUserId, targetUser.uid);
-
-    // Arayüzü güncelle
-    chatTargetName.textContent = targetUser.username;
-    chatHeader.classList.remove('hidden');
-    messageInput.disabled = false;
-    sendButton.disabled = false;
-
-    // Mesaj dinleyicisini başlat
-    setupMessageListener(activeChatId);
-}
-
-// --- ARKADAŞLIK VE KULLANICI YÖNETİMİ ---
-
-/** Arkadaşlık isteği gönderir. */
-async function sendFriendRequest(targetUserId, targetUsername){
-    if(targetUserId === currentUserId) return;
-    
-    try {
-        await setDoc(doc(db, 'friendRequests', getDmId(currentUserId, targetUserId)), {
-            fromUserId: currentUserId,
-            fromUsername: currentUserName,
-            toUserId: targetUserId,
-            toUsername: targetUsername,
-            status: 'pending',
-            createdAt: serverTimestamp()
-        });
-        alert(`Arkadaşlık isteği ${targetUsername} kullanıcısına gönderildi.`);
-        // Modalı güncelle (eğer açıksa)
-        showAllUsers(); 
-    } catch(err) {
-        console.error("İstek gönderilemedi:", err);
-        alert("İstek gönderilemedi.");
-    }
-}
-
-/** Arkadaşlık isteğini kabul eder/reddeder. */
-async function handleFriendRequest(requestId, status){
-    try {
-        await setDoc(doc(db, 'friendRequests', requestId), { status }, { merge: true });
-        
-        if (status === 'accepted') {
-            const requestDoc = await getDoc(doc(db, 'friendRequests', requestId));
-            const data = requestDoc.data();
-            
-            // Kullanıcıların arkadaş listesine ekle
-            await setDoc(doc(db, 'users', data.fromUserId), { 
-                friends: arrayUnion(data.toUserId) 
-            }, { merge: true });
-            
-            await setDoc(doc(db, 'users', data.toUserId), { 
-                friends: arrayUnion(data.fromUserId) 
-            }, { merge: true });
-
-            alert(`${data.fromUsername} artık arkadaşınız.`);
-        }
-        
-        // Modal içeriğini ve sayacı güncelle
-        setupFriendRequestsListener(); 
-        document.getElementById('request-badge').click(); // Modalı yeniden aç
-    } catch(err) {
-        console.error("İstek işlenemedi:", err);
-    }
-}
-
-/** Arkadaşlık isteklerini dinler ve rozeti günceller. */
-function setupFriendRequestsListener(){
-    if(!currentUserId) return;
-    
-    // Gelen beklemedeki istekleri dinle
-    const q = query(collection(db, 'friendRequests'), 
-                    where('toUserId', '==', currentUserId), 
-                    where('status', '==', 'pending'),
-                    orderBy('createdAt', 'desc'));
-    
+function setupMessageListener(){
+    const q = query(collection(db,'messages'), orderBy('createdAt','asc'));
     onSnapshot(q, snapshot => {
-        const count = snapshot.size;
-        requestCount.textContent = count;
-        requestBadge.classList.toggle('hidden', count === 0);
-        
-        // İstek listesini hazırlama (Modal açıldığında kullanılacak)
-        let requestsHtml = '<p class="text-gray-400">Yeni isteğiniz yok.</p>';
-        if (count > 0) {
-            requestsHtml = snapshot.docs.map(doc => {
-                const req = doc.data();
-                return `
-                <div class="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
-                    <span class="font-semibold">${req.fromUsername}</span>
-                    <div>
-                        <button onclick="handleFriendRequest('${doc.id}', 'accepted')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm mr-2">Kabul Et</button>
-                        <button onclick="handleFriendRequest('${doc.id}', 'rejected')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm">Reddet</button>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-        requestBadge.onclick = () => openModal('Gelen Arkadaşlık İstekleri', requestsHtml);
+        messagesContainer.innerHTML = '';
+        snapshot.docs.forEach(doc => renderMessage(doc.data(), currentUserId));
+        scrollToBottom();
     });
 }
 
-/** Tüm kullanıcıları arar ve modalda gösterir. */
-async function showAllUsers(searchTerm = ''){
-    const q = query(collection(db, 'users'), orderBy('username'));
-    const snapshot = await getDocs(q);
-    
-    let userHtml = '';
-    snapshot.forEach(doc => {
-        const user = doc.data();
-        if (user.uid === currentUserId) return; // Kendimizi listeleme
-        if (searchTerm && !user.username.toLowerCase().includes(searchTerm.toLowerCase())) return;
-
-        userHtml += `
-        <div class="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
-            <span class="font-semibold">${user.username}</span>
-            <button onclick="sendFriendRequest('${user.uid}', '${user.username}')" 
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg text-sm">
-                Arkadaş Ekle
-            </button>
-        </div>`;
-    });
-
-    openModal('Tüm Kullanıcılar', userHtml || '<p class="text-gray-400">Kullanıcı bulunamadı.</p>');
-}
-
-// --- INBOX VE DM LİSTESİ DİNLEYİCİSİ ---
-
-function renderInboxAndFriends() {
-    if (!currentUserId) return;
-    
-    inboxList.innerHTML = '<p class="text-gray-400">Yükleniyor...</p>';
-    
-    // 🔥 ÖNEMLİ: Bu dinleyici, kullanıcının DM'lerini ve arkadaşlarını (varsa) göstermelidir.
-    // Basitlik adına, sadece kullanıcıyı içeren tüm 'dms' koleksiyonunu dinliyoruz.
-    const q1 = query(collection(db, 'dms'), where('user1', '==', currentUserId));
-    const q2 = query(collection(db, 'dms'), where('user2', '==', currentUserId));
-    
-    // İki sorguyu birleştirmek zordur, bu yüzden geçici olarak sadece bir yöndeki DM'leri dinleyelim.
-    // Gerçek uygulamada, kullanıcıların arkadaş listesinden ve DM güncellemelerinden bir "inbox" listesi oluşturulur.
-    
-    onSnapshot(q1, snapshot => {
-        inboxList.innerHTML = '';
-        if(snapshot.empty) {
-            inboxList.innerHTML = '<p class="text-gray-400">Henüz bir DM sohbetiniz yok.</p>';
-        }
-        snapshot.forEach(doc => {
-            const dm = doc.data();
-            const targetId = dm.user1 === currentUserId ? dm.user2 : dm.user1;
-            const targetName = dm.user1 === currentUserId ? dm.user2Name : dm.user1Name; // Gerçek uygulamada bu isimler DM nesnesinde tutulur
-            
-            // Simülasyon: Target user nesnesi oluştur
-            const targetUser = { uid: targetId, username: targetName || 'Bilinmeyen Kullanıcı' };
-
-            const dmItem = document.createElement('div');
-            dmItem.className = 'p-3 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer flex justify-between items-center';
-            dmItem.innerHTML = `
-                <span class="font-semibold">${targetUser.username}</span>
-                <span class="text-xs text-gray-400">${dm.lastMessage || 'Sohbete Başla'}</span>
-            `;
-            dmItem.onclick = () => startChat(targetUser);
-            inboxList.appendChild(dmItem);
-        });
-    });
-}
-
-
-// --- ANA MANTIK VE OLAY YÖNETİCİLERİ ---
-
-messageForm.addEventListener('submit', async (e) => {
+async function sendMessage(e){
     e.preventDefault();
     const text = messageInput.value.trim();
-    if(!text || !currentUserId || !activeChatId || !activeChatTarget) return;
-
+    if(!text || !currentUserId) return;
     try{
-        // 1. DM'nin alt koleksiyonuna mesajı ekle
-        await addDoc(collection(db, 'dms', activeChatId, 'messages'), {
+        await addDoc(collection(db,'messages'), {
             text,
             createdAt: serverTimestamp(),
             userId: currentUserId,
             username: currentUserName
         });
-        
-        // 2. DM nesnesini son mesaj ve zamanla güncelle (Inbox için)
-        await setDoc(doc(db, 'dms', activeChatId), {
-            user1: currentUserId,
-            user2: activeChatTarget.uid,
-            // Gerçek uygulamada user1Name ve user2Name'i de eklemek gerekir
-            lastMessage: text,
-            updatedAt: serverTimestamp()
-        }, { merge: true });
-
         messageInput.value='';
         scrollToBottom();
     }catch(err){
         console.error("Mesaj gönderilemedi:",err);
     }
-});
+}
 
-userSearchInput.addEventListener('input', (e) => showAllUsers(e.target.value));
-showAllUsersButton.addEventListener('click', () => showAllUsers());
-modalClose.addEventListener('click', closeModal);
+messageForm.addEventListener('submit',sendMessage);
 
-// --- BAŞLANGIÇ MANTIĞI (AUTH) ---
+// Anonim giriş
+signInAnonymously(auth).catch(err=>console.error(err));
 
-signInAnonymously(auth).catch(err => console.error("Anonim Giriş Hatası:", err));
-
-onAuthStateChanged(auth, async user => {
+onAuthStateChanged(auth, user=>{
     if(user){
         currentUserId = user.uid;
-        let nick = localStorage.getItem('nick');
-        
-        // Kullanıcı Adı Belirleme ve Veritabanına Kayıt
-        if(!nick){
-            nick = prompt("Hoşgeldiniz! Lütfen bir Nick (Kullanıcı Adı) belirleyin:") || "Anonim";
-            localStorage.setItem('nick', nick);
-            
-            // 🔥 YENİ: Kullanıcıyı 'users' koleksiyonuna kaydet
-            await setDoc(doc(db, "users", currentUserId), {
-                username: nick,
-                uid: currentUserId,
-                friends: [], // Başlangıçta boş arkadaş listesi
-                blocked: [], // Başlangıçta boş engellenenler listesi
-                createdAt: serverTimestamp()
-            });
-            currentUserName = nick;
-        } else {
-             // Kayıtlı nick'i kullanarak kullanıcının mevcut verilerini getir/güncelle
-             const userDoc = await getDoc(doc(db, "users", currentUserId));
-             if(userDoc.exists()) {
-                 currentUserName = userDoc.data().username;
-             } else {
-                 // Eğer localStorage'da nick varsa ama DB'de yoksa, DB'ye kaydet
-                 await setDoc(doc(db, "users", currentUserId), {
-                     username: nick,
-                     uid: currentUserId,
-                     friends: [],
-                     blocked: [],
-                     createdAt: serverTimestamp()
-                 });
-                 currentUserName = nick;
-             }
+        if(!currentUserName){
+            currentUserName = prompt("Nick belirle:") || "Anonim";
+            localStorage.setItem('nick', currentUserName);
         }
-        
         userInfoDiv.innerHTML = `Hoşgeldiniz, <strong>${currentUserName}</strong>`;
-        
-        // Dinleyicileri Başlat
-        setupFriendRequestsListener(); 
-        renderInboxAndFriends(); // DM Kutusu/Arkadaşlar listesini getir
-        
-    } else {
-        userInfoDiv.innerHTML = `Giriş yapılamadı.`;
-        messageInput.disabled = true;
-        sendButton.disabled = true;
+        sendButton.disabled = false;
+        setupMessageListener();
     }
 });
-
-// Global scope'a ekliyoruz ki, HTML'deki inline onclick fonksiyonları çalışabilsin
-window.handleFriendRequest = handleFriendRequest;
-
-// İhtiyacınız olursa setDoc, getDoc ve arrayUnion'ı global yapın
-import { getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-window.getDocs = getDocs;
-
-import { arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-window.arrayUnion = arrayUnion;
-
 </script>
 </body>
 </html>
+
+nick belirledikten sonra dm kutusu açılsın, kullanıcı adı ile insanlara arkadaşlık isteği gönderebilelim arkadaş olduktan sonra konuşabilelim ve grup sistemi yap, gruptan ayrılma ve kullanıcı engelleme şeylerini unutma
