@@ -49,7 +49,6 @@ input:focus,textarea:focus { border-color:#4f46e5; outline:none; }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, doc, collection, query, where, onSnapshot, addDoc, updateDoc, getDocs, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 let app, db, auth;
 let userId=null, isRecruitmentOpen=false, isAdmin=false, applications=[], currentView='apply';
@@ -66,6 +65,7 @@ const toggleAdminPanelBtn=document.getElementById('toggle-admin-panel');
 const firebaseConfig = {
   apiKey: "AIzaSyBKdbwP6hT4D9y1pjF7Ew5fm8CjDDqk-G0",
   authDomain: "nexra-67f1a.firebaseapp.com",
+  databaseURL: "https://nexra-67f1a-default-rtdb.firebaseio.com",
   projectId: "nexra-67f1a",
   storageBucket: "nexra-67f1a.firebasestorage.app",
   messagingSenderId: "27569499287",
@@ -86,7 +86,6 @@ function showLoading(state){ loadingIndicatorEl.style.display=state?'block':'non
 app=initializeApp(firebaseConfig);
 db=getFirestore(app);
 auth=getAuth(app);
-setLogLevel('Debug');
 
 async function initAuth(){
     showLoading(true);
@@ -95,7 +94,6 @@ async function initAuth(){
         onAuthStateChanged(auth,user=>{
             if(user){
                 userId=user.uid;
-                console.log("Auth başarılı, userId:",userId);
                 authStatusEl.innerHTML=`Hoş geldiniz! Kullanıcı ID'niz: <span class="font-mono text-indigo-400 break-all">${userId}</span>`;
                 initializeListeners();
             }
@@ -103,7 +101,6 @@ async function initAuth(){
     }catch(e){console.error(e);showModal("Hata","Giriş yapılamadı.");}
 }
 
-// Firestore collection path
 const CONFIG_DOC=()=>doc(db,'nexra_config','status');
 const APPLICATIONS_COLLECTION=()=>collection(db,'nexra_applications');
 
@@ -121,13 +118,9 @@ function listenToConfig(){
         let config;
         if(docSnap.exists()){ 
             config=docSnap.data();
-            console.log("Config geldi:",config);
         } else {
             config={ recruitmentOpen:true, admins:[userId] };
-            try{
-                await setDoc(CONFIG_DOC(),config,{merge:true});
-                console.log("Config oluşturuldu.");
-            }catch(e){console.error("Config yazılamadı:",e);}
+            await setDoc(CONFIG_DOC(),config,{merge:true});
         }
         isRecruitmentOpen=config.recruitmentOpen||false;
         isAdmin=config.admins?.includes(userId)||false;
@@ -146,7 +139,143 @@ function listenToApplications(){
     });
 }
 
-// ... renderApp, renderApplicationForm, renderAdminPanel, updateApplicationStatus fonksiyonları aynı
+function updateRecruitmentBanner(isOpen){
+    recruitmentStatusBannerEl.style.display='block';
+    recruitmentStatusTextEl.textContent=isOpen?"✅ Yetkili Alımı AÇIK!":"🛑 Yetkili Alımı KAPALI.";
+    recruitmentStatusBannerEl.className=`card p-4 mb-8 text-center ${isOpen?'bg-green-700/50 border-green-500':'bg-red-700/50 border-red-500'} border`;
+}
+
+function renderApp(){
+    if(isAdmin){
+        adminSwitchEl.style.display='flex';
+        toggleAdminPanelBtn.textContent=currentView==='admin_panel'?'Başvuru Formuna Dön':'Admin Panelini Aç';
+    }else adminSwitchEl.style.display='none';
+    currentView==='admin_panel'&&isAdmin?renderAdminPanel():renderApplicationForm();
+}
+
+function renderApplicationForm(){
+    const appData=applications.find(app=>app.applicantId===userId);
+    if(appData){
+        let statusColor='bg-yellow-600';
+        if(appData.status==='Approved') statusColor='bg-green-600';
+        else if(appData.status==='Rejected') statusColor='bg-red-600';
+        contentAreaEl.innerHTML=`
+        <div class="card p-8 sm:p-10 max-w-3xl mx-auto shadow-xl hover:shadow-2xl transition-all duration-300 ${statusColor}/20 border ${statusColor} border-opacity-50">
+            <h2 class="text-3xl font-extrabold mb-4 text-white">Başvuru Durumunuz</h2>
+            <p class="text-lg text-gray-200 mb-2"><span class="font-semibold">Ad / Kullanıcı:</span> ${appData.name}</p>
+            <p class="text-lg text-gray-200 mb-2"><span class="font-semibold">Yaş:</span> ${appData.age}</p>
+            <p class="text-lg text-gray-200 mb-2"><span class="font-semibold">Durum:</span> ${appData.status}</p>
+            <p class="text-lg text-gray-200 mb-2"><span class="font-semibold">Redd. Nedeni:</span> ${appData.rejectionReason||'—'}</p>
+            <p class="text-lg text-gray-200 mb-2"><span class="font-semibold">Başvurma Tarihi:</span> ${new Date(appData.timestamp?.seconds*1000).toLocaleString('tr-TR')}</p>
+            <p class="text-lg text-gray-200 mb-2"><span class="font-semibold">Cevap Tarihi:</span> ${appData.responseTimestamp?new Date(appData.responseTimestamp.seconds*1000).toLocaleString('tr-TR'):'—'}</p>
+            <p class="text-lg text-gray-200 mb-2"><span class="font-semibold">Deneyim:</span> ${appData.experience}</p>
+            <p class="text-lg text-gray-200 mb-2"><span class="font-semibold">Motivasyon:</span> ${appData.motivation}</p>
+            <p class="text-lg text-gray-200 mb-2"><span class="font-semibold">Kavga Çözümü:</span> ${appData.conflictResolution}</p>
+            <p class="text-lg text-gray-200 mb-2"><span class="font-semibold">Yetkili Sorunu:</span> ${appData.authorityIssue}</p>
+            <p class="text-lg text-gray-200 mb-2"><span class="font-semibold">Çıkar Çatışması:</span> ${appData.conflictOfInterest}</p>
+        </div>`;
+        return;
+    }
+
+    contentAreaEl.innerHTML=`
+    <div class="card p-8 sm:p-10 max-w-3xl mx-auto shadow-xl hover:shadow-2xl transition-all duration-300">
+        <h2 class="text-3xl font-extrabold mb-6 text-indigo-400">Yetkili Alım Başvuru Formu</h2>
+        <form id="application-form" class="space-y-6">
+            <div><label>Adınız / Kullanıcı Adınız:</label><input type="text" id="name" name="name" required placeholder="Adınız ve kullanıcı adınız"></div>
+            <div><label>Yaşınız:</label><input type="number" id="age" name="age" required placeholder="Yaşınız" min="12" max="100"></div>
+            <div><label>Deneyimleriniz:</label><textarea id="experience" name="experience" rows="4" required></textarea></div>
+            <div><label>Motivasyon:</label><textarea id="motivation" name="motivation" rows="4" required></textarea></div>
+            <div><label>Kavga Çözümü:</label><textarea id="conflict-resolution" name="conflict-resolution" rows="3" required></textarea></div>
+            <div><label>Yetkili Sorunu:</label><textarea id="authority-issue" name="authority-issue" rows="3" required></textarea></div>
+            <div><label>Çıkar Çatışması:</label><textarea id="conflict-of-interest" name="conflict-of-interest" rows="3" required></textarea></div>
+            <button type="submit" class="btn-primary w-full py-3 font-semibold text-lg hover:bg-indigo-500 transition-colors">Başvuruyu Gönder</button>
+        </form>
+    </div>`;
+
+    document.getElementById('application-form').addEventListener('submit',async e=>{
+        e.preventDefault();
+        if(!isRecruitmentOpen) return showModal("Uyarı","Şu anda yetkili alımı kapalıdır.");
+        const form=e.target;
+        const data={
+            applicantId:userId,
+            name:form.name.value.trim(),
+            age:parseInt(form.age.value.trim()),
+            experience:form.experience.value.trim(),
+            motivation:form.motivation.value.trim(),
+            conflictResolution:form['conflict-resolution'].value.trim(),
+            authorityIssue:form['authority-issue'].value.trim(),
+            conflictOfInterest:form['conflict-of-interest'].value.trim(),
+            status:'Pending',
+            timestamp:serverTimestamp()
+        };
+        try{
+            const existingQuery=query(APPLICATIONS_COLLECTION(),where("applicantId","==",userId));
+            const existingSnapshot=await getDocs(existingQuery);
+            if(!existingSnapshot.empty){
+                await updateDoc(doc(db,APPLICATIONS_COLLECTION().path,existingSnapshot.docs[0].id),data);
+            }else await addDoc(APPLICATIONS_COLLECTION(),data);
+            showModal("Başarılı","Başvurunuz başarıyla gönderildi! Adminler değerlendirecek.");
+            form.reset();
+        }catch(err){console.error(err);showModal("Hata","Başvurunuz gönderilirken hata oluştu.");}
+    });
+}
+
+function renderAdminPanel(){
+    let tableRows=applications.map(app=>`
+        <tr class="border-b border-gray-700 hover:bg-gray-600 transition-colors">
+            <td class="px-4 py-2">${app.name}</td>
+            <td class="px-4 py-2">${app.age}</td>
+            <td class="px-4 py-2">${app.status}</td>
+            <td class="px-4 py-2">${app.rejectionReason||'—'}</td>
+            <td class="px-4 py-2">${new Date(app.timestamp?.seconds*1000).toLocaleString('tr-TR')}</td>
+            <td class="px-4 py-2">${app.responseTimestamp?new Date(app.responseTimestamp.seconds*1000).toLocaleString('tr-TR'):'—'}</td>
+            <td class="px-4 py-2">
+                <button class="btn-primary py-1 px-2 mr-2" onclick="updateApplicationStatus('${app.id}','Approved')">Onayla</button>
+                <button class="btn-primary py-1 px-2 bg-red-600 hover:bg-red-500" onclick="updateApplicationStatus('${app.id}','Rejected')">Reddet</button>
+            </td>
+        </tr>`).join('');
+
+    contentAreaEl.innerHTML=`
+    <div class="card p-6 sm:p-8 max-w-5xl mx-auto shadow-lg hover:shadow-xl transition-all duration-300">
+        <h2 class="text-3xl font-extrabold mb-6 text-indigo-400">Admin Paneli</h2>
+        <button id="toggle-recruitment" class="btn-primary mb-6 hover:bg-indigo-500 transition-colors">Yetkili Alımı Aç/Kapat</button>
+        <div class="overflow-x-auto">
+            <table class="min-w-full border border-gray-700 divide-y divide-gray-700 text-left text-gray-300">
+                <thead class="bg-gray-800">
+                    <tr>
+                        <th class="px-4 py-2">Ad / Kullanıcı</th>
+                        <th class="px-4 py-2">Yaş</th>
+                        <th class="px-4 py-2">Durum</th>
+                        <th class="px-4 py-2">Redd. Nedeni</th>
+                        <th class="px-4 py-2">Başvurma Tarihi</th>
+                        <th class="px-4 py-2">Cevap Tarihi</th>
+                        <th class="px-4 py-2">İşlem</th>
+                    </tr>
+                </thead>
+                <tbody>${tableRows}</tbody>
+            </table>
+        </div>
+    </div>`;
+
+    document.getElementById('toggle-recruitment').addEventListener('click',async ()=>{
+        try{
+            await updateDoc(CONFIG_DOC(),{recruitmentOpen:!isRecruitmentOpen});
+            showModal("Başarılı",`Yetkili alımı ${!isRecruitmentOpen?'AÇILDI':'KAPATILDI'}`);
+        }catch(err){console.error(err);showModal("Hata","Alım durumunu güncellerken hata oluştu.");}
+    });
+}
+
+window.updateApplicationStatus=async function(appId,newStatus){
+    try{
+        const updateData={status:newStatus,responseTimestamp:serverTimestamp()};
+        if(newStatus==='Rejected'){
+            const reason=prompt("Reddetme nedeni girin:")||'—';
+            updateData.rejectionReason=reason;
+        }
+        await updateDoc(doc(db,APPLICATIONS_COLLECTION().path,appId),updateData);
+        showModal("Başarılı",`Başvuru durumu "${newStatus}" olarak güncellendi.`);
+    }catch(err){console.error(err);showModal("Hata","Başvuru durumunu güncellerken hata oluştu.");}
+}
 
 initAuth();
 </script>
