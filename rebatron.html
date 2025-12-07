@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rebatron Studios - Next-Gen Game Development</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'monospace']
+                    },
+                    colors: {
+                        'neon-cyan': '#00F8FF',
+                        'neon-purple': '#BF00FF',
+                        'bg-dark': '#0A0A1F',
+                        'gray-component': '#1C1C35'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* (Stil kodlarının geri kalanı aynı) */
+        
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        body { overflow-x: hidden; }
+
+        .parallax {
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card-hover {
+            transition: all .4s ease;
+            border: 2px solid transparent;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.03);
+            border-color: #00F8FF;
+            box-shadow: 0 20px 40px rgba(0,248,255,.25);
+        }
+
+        .glow {
+            box-shadow: 0 0 20px rgba(0,248,255,.6);
+            transition: .3s;
+        }
+        .glow:hover {
+            box-shadow: 0 0 40px rgba(0,248,255,1),0 0 60px rgba(191,0,255,.6);
+            transform: scale(1.05);
+        }
+
+        /* --- GÜNCELLENMİŞ YÜKLENİYOR EKRANI CSS'İ --- */
+        .loading {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(45deg,#0A0A1F,#1C1C35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            /* Yüklenme süresi 3.5 saniyeye çıkarıldı */
+            animation: fadeOut 3.5s ease-out 0s forwards; 
+        }
+        @keyframes fadeOut {
+            to {opacity:0;visibility:hidden;}
+        }
+
+        /* İlerleme Çubuğu Animasyonu */
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #BF00FF, #00F8FF);
+            transition: width 3s ease-out; /* Dolum animasyonu 3 saniye sürer */
+            animation: loadBar 3s forwards;
+        }
+        @keyframes loadBar {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+
+        /* Glitch Efekti (Ekstra Estetik) */
+        .glitch-text {
+            position: relative;
+            animation: glitch 2s linear infinite alternate-reverse;
+            text-shadow: 0 0 5px #00F8FF, 0 0 10px #BF00FF;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); text-shadow: 0 0 5px #00F8FF, 0 0 10px #BF00FF; }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-4px, -4px); }
+            60% { transform: translate(4px, 4px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        /* --- GÜNCELLENMİŞ YÜKLENİYOR EKRANI CSS'İ SONU --- */
+
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            opacity: .7;
+            animation: float 15s linear infinite;
+        }
+        @keyframes float {
+            from {transform: translateY(100vh);}
+            to {transform: translateY(-100vh);}
+        }
+
+        /* Image Sizing Fixes */
+        .news-image {
+            width: 96px; /* w-24 */
+            height: 96px; /* h-24 */
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body class="bg-bg-dark text-white font-orbitron">
+
+<div class="loading">
+    <div class="text-center w-full max-w-lg px-8">
+        <h1 class="text-6xl font-black text-neon-cyan mb-8 glitch-text">
+            Rebatron Studios
+        </h1>
+        <p class="mt-4 text-xl text-gray-300 mb-4">
+            System Initiating: <span class="text-neon-cyan">Loading Assets...</span>
+        </p>
+        
+        <div class="h-4 bg-gray-component rounded-lg overflow-hidden border-2 border-neon-cyan/50">
+            <div class="progress-bar-fill"></div>
+        </div>
+    </div>
+</div>
+<div class="particles" id="particles"></div>
+
+<header class="sticky top-0 z-50 bg-bg-dark/90 backdrop-blur">
+    <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="text-2xl font-bold text-neon-cyan">Rebatron Studios</div>
+
+        <ul class="hidden md:flex space-x-8">
+            <li><a href="#home" class="hover:text-neon-cyan">Home</a></li>
+            <li><a href="#projects" class="hover:text-neon-cyan">Projects</a></li>
+            <li><a href="#news" class="hover:text-neon-cyan">Updates</a></li>
+            <li><a href="#team" class="hover:text-neon-cyan">Team</a></li>
+        </ul>
+
+        <button id="menuBtn" class="md:hidden text-neon-cyan text-2xl">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <div id="mobileMenu" class="hidden md:hidden bg-bg-dark px-6 pb-4">
+        <a href="#home" class="block py-2">Home</a>
+        <a href="#projects" class="block py-2">Projects</a>
+        <a href="#news" class="block py-2">Updates</a>
+        <a href="#team" class="block py-2">Team</a>
+    </div>
+</header>
+
+<section id="home" class="parallax min-h-screen flex items-center justify-center text-center"
+style="background-image:linear-gradient(rgba(10,10,31,.8),rgba(10,10,31,.8)),url('https://via.placeholder.com/1600x900');">
+    <div class="z-10 px-6">
+                <h1 class="text-5xl sm:text-6xl md:text-8xl font-black text-neon-cyan mb-6">REBATRON</h1>
+        <p class="text-lg sm:text-xl max-w-3xl mx-auto text-gray-300 mb-10">
+            We don't just design games, we build new digital universes.
+        </p> <a href="#projects" class="glow inline-block px-10 py-5 rounded-lg bg-gradient-to-r from-neon-cyan to-neon-purple font-bold uppercase">
+            Explore Our Projects
+        </a>
+    </div>
+</section>
+
+<section id="projects" class="py-24 bg-gray-component">
+    <div class="container mx-auto px-6 text-center">
+        <h2 class="text-4xl sm:text-5xl font-black text-neon-cyan mb-12">OUR PROJECTS</h2>
+
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 justify-center mx-auto max-w-6xl">
+            <div class="card-hover bg-bg-dark p-8 rounded-xl text-center border-2 border-neon-cyan/40">
+                
+                <div class="mb-6 mx-auto w-40 h-40 flex items-center justify-center rounded-xl bg-neon-cyan/10 p-2">
+                    <img src="https://i.hizliresim.com/4z3ixni.jpg" class="rounded-lg w-36 h-36 object-cover border-4 border-neon-cyan shadow-lg shadow-neon-cyan/30" alt="Rebatron Game Art"> 
+                </div>
+
+                <span class="text-sm text-neon-purple tracking-wider">STATUS: Demo coming soon</span>
+                <h3 class="text-3xl font-black text-neon-cyan mt-2 mb-4">REBATRON</h3>
+                <p class="text-gray-300 mb-6 text-sm">
+                    Deep psychological horror elements, intense atmosphere, and high-quality tension.
+                </p> 
+                
+                <div class="flex gap-3 justify-center mb-6">
+                    <span class="px-3 py-1 bg-neon-cyan/20 rounded-full text-xs text-neon-cyan font-semibold">Horror</span>
+                    <span class="px-3 py-1 bg-neon-purple/20 rounded-full text-xs text-neon-purple font-semibold">Psychological</span>
+                    
+                </div>
+                
+                <a href="#" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-gray-600/50 font-bold uppercase text-sm cursor-not-allowed text-gray-400">
+                    <i class="fas fa-lock text-xl"></i>
+                    Wishlist Coming Soon
+                </a>
+            </div>
+            
+            <div class="card-hover bg-bg-dark p-8 rounded-xl text-center border-2 border-gray-component">
+                
+                <div class="mb-6 mx-auto w-40 h-40 flex items-center justify-center rounded-xl bg-gray-component/50 p-2">
+                    <i class="fas fa-satellite-dish text-6xl text-gray-500"></i>
+                </div>
+
+                <span class="text-sm text-gray-500 tracking-wider">STATUS: Concept Stage</span>
+                <h3 class="text-3xl font-black text-gray-300 mt-2 mb-4">Future Project</h3>
+                <p class="text-gray-400 mb-6 text-sm">
+                    What's next? We are working on new ideas and innovative concepts.
+                </p> 
+                
+                <div class="flex gap-3 justify-center mb-6">
+                    <span class="px-3 py-1 bg-gray-component rounded-full text-xs text-gray-400 font-semibold">Secret</span>
+                    <span class="px-3 py-1 bg-gray-component rounded-full text-xs text-gray-400 font-semibold">Innovation</span>
+                </div>
+                
+                <a href="#" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-gray-600/50 font-bold uppercase text-sm cursor-not-allowed text-gray-400">
+                    <i class="fas fa-lock text-xl"></i>
+                    To Be Announced
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+<section id="news" class="py-24 bg-bg-dark">
+<div class="container mx-auto px-6">
+<h2 class="text-4xl sm:text-5xl font-black text-neon-cyan mb-12 text-center">UPDATES AND ANNOUNCEMENTS</h2>
+
+<div class="card-hover bg-gray-component p-8 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-6 border-2 border-neon-purple/40 max-w-4xl mx-auto">
+    <img src="https://static.vecteezy.com/system/resources/previews/020/336/432/original/steam-logo-steam-icon-free-free-vector.jpg"
+    class="rounded-lg news-image flex-shrink-0" alt="Steam Logo"> 
+    <div>
+        <span class="text-sm text-neon-purple">20.11.2025</span>
+        <h3 class="text-2xl sm:text-3xl font-bold text-neon-cyan mb-2">Steam Next Fest Participation</h3>
+        <p class="text-gray-300">
+            The demo version of our game will be released very soon. Please support us by adding it to your wishlist.
+        </p> 
+    </div>
+</div>
+</div>
+</section>
+
+<section id="team" class="py-24 bg-gray-component">
+<div class="container mx-auto px-6 text-center">
+<h2 class="text-4xl sm:text-5xl font-black text-neon-purple mb-12">OUR CORE TEAM</h2>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-lg sm:max-w-4xl md:max-w-full mx-auto">
+    <div class="card-hover bg-bg-dark p-8 rounded-xl">
+        <img src="https://cdn-icons-png.freepik.com/512/10337/10337609.png" class="w-24 h-24 mx-auto rounded-full mb-4 border-4 border-neon-cyan" alt="Ayla Demir Profile">
+        <h3 class="text-xl font-bold">atommert</h3>
+        <p class="text-neon-cyan">Developer</p>
+    </div>
+
+    <div class="card-hover bg-bg-dark p-8 rounded-xl">
+        <img src="https://cdn-icons-png.freepik.com/512/10337/10337609.png" class="w-24 h-24 mx-auto rounded-full mb-4 border-4 border-neon-purple" alt="Kaan Yılmaz Profile">
+        <h3 class="text-xl font-bold">waxy</h3>
+        <p class="text-neon-purple">Game Director/Developer</p>
+    </div>
+
+    <div class="card-hover bg-bg-dark p-8 rounded-xl">
+        <img src="https://cdn-icons-png.freepik.com/512/10337/10337609.png" class="w-24 h-24 mx-auto rounded-full mb-4 border-4 border-neon-cyan" alt="Emre Kaya Profile">
+        <h3 class="text-xl font-bold">yasar</h3>
+        <p class="text-neon-cyan">3D Designer</p>
+            </div>
+</div>
+</div>
+</section>
+
+<section id="contact" class="py-24 bg-bg-dark">
+    <div class="container mx-auto px-6 text-center">
+        <h2 class="text-4xl sm:text-5xl font-black text-neon-cyan mb-12">CONTACT US</h2>
+        <p class="text-lg max-w-2xl mx-auto text-gray-300 mb-8">
+            You can contact us for our projects, collaborations, or other inquiries.
+        </p>
+        <div class="flex justify-center space-x-6 text-3xl">
+            <a href="#" class="hover:text-neon-cyan"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="hover:text-neon-cyan"><i class="fab fa-discord"></i></a>
+            <a href="#" class="hover:text-neon-cyan"><i class="fab fa-youtube"></i></a>
+        </div>
+    </div>
+</section>
+
+<footer class="bg-gray-component py-6 text-center text-gray-400">
+© 2025 Rebatron Studios. All rights reserved.
+</footer>
+
+<script>
+    // Mobil Menü Toggle
+    document.getElementById("menuBtn").onclick = () =>
+        document.getElementById("mobileMenu").classList.toggle("hidden");
+
+    // Parçacık Efekti
+    const p = document.getElementById("particles");
+    for(let i=0;i<80;i++){
+        let s=document.createElement("span");
+        s.className="particle";
+        s.style.left=Math.random()*100+"%";
+        s.style.animationDelay=Math.random()*15+"s";
+        p.appendChild(s);
+    }
+</script>
+
+</body>
+</html>
