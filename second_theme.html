@@ -1,302 +1,175 @@
 <!DOCTYPE html>
-<html lang="tr" class="scroll-smooth">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AVA Digital | Veri Odaklı İçerik Mühendisliği</title>
+    <title>AVA Digital | Profesyonel Reels Analiz & Strateji</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --c1: #0f172a; 
-            --c2: #57caff; 
-            --c5: #f8fafc; 
-            --text-main: #334155; 
-            --text-heading: #1e293b; 
-            --text-muted: #64748b;
-        }
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; overflow-x: hidden; }
         
-        body { 
-            background-color: var(--c5); 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            color: var(--text-main);
-            overflow-x: hidden;
+        /* Dynamic Island */
+        .dynamic-island-transition { transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1); }
+        .glass { background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .island-expanded { width: 320px !important; height: 180px !important; border-radius: 44px !important; background: rgba(10, 10, 10, 0.98) !important; }
+
+        /* SCROLL REVEAL ANIMASYONU */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        .bg-subtle-texture {
-            background-image: url("https://www.transparenttextures.com/patterns/cubes.png");
-            opacity: 0.03; position: fixed; inset: 0; pointer-events: none; z-index: 1;
-        }
+        /* İçerik Animasyonları */
+        .content-hidden { opacity: 0; transform: translateY(10px); pointer-events: none; }
+        .content-visible { opacity: 1; transform: translateY(0); pointer-events: auto; transition: all 0.4s ease 0.2s; }
 
-        .cta-primary {
-            background: var(--c1);
-            color: white;
-            padding: 1rem 2.5rem;
-            border-radius: 12px;
-            font-weight: 700;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 25px -5px rgba(120, 173, 250, 0.4);
-        }
-        .cta-primary:hover { 
-            background: #2563eb;
-            transform: scale(1.02);
-            box-shadow: 0 20px 30px -10px rgba(37, 99, 235, 0.3);
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-        }
-
-        #spotlight {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(120, 173, 250, 0.06) 0%, transparent 70%);
-            pointer-events: none; z-index: 2;
-        }
-
-        /* Slider Custom Cursor */
-        #hookSliderContainer { cursor: grab; }
-        #hookSliderContainer:active { cursor: grabbing; }
+        .hero-gradient { background: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.03) 0%, rgba(255,255,255,0) 70%); }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-white text-black">
 
-    <div class="bg-subtle-texture"></div>
-    <div id="spotlight"></div>
-
-    <nav class="fixed top-0 w-full z-[100] px-6 py-6">
-        <div class="max-w-6xl mx-auto flex justify-between items-center bg-white/80 backdrop-blur-md border border-slate-200/60 px-8 py-4 rounded-2xl shadow-sm">
-            <div class="text-xl font-extrabold tracking-tighter text-slate-800">AVA<span class="text-[var(--c1)]"> DIGITAL</span></div>
-            <div class="hidden md:flex gap-10">
-                <a href="#features" class="text-sm font-semibold text-slate-500 hover:text-[var(--c1)] transition-colors">Teknoloji</a>
-                <a href="#hooks" class="text-sm font-semibold text-slate-500 hover:text-[var(--c1)] transition-colors">Hook Rehberi</a>
-                <a href="#testimonials" class="text-sm font-semibold text-slate-500 hover:text-[var(--c1)] transition-colors">Referanslar</a>
+    <nav id="navbar" onclick="expandIsland(event)" class="fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center justify-between glass text-white px-6 py-3 rounded-full dynamic-island-transition w-[90%] max-w-[900px] shadow-2xl cursor-pointer overflow-hidden">
+        <div id="nav-content" class="flex items-center justify-between w-full transition-opacity duration-300">
+            <div class="flex items-center gap-2 shrink-0">
+                <div class="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
+                    <div class="w-3 h-3 bg-black rounded-sm rotate-45"></div>
+                </div>
+                <span id="nav-logo-text" class="font-extrabold tracking-tighter text-lg">AVA Digital</span>
             </div>
-            <button class="bg-slate-900 text-white text-[11px] font-bold uppercase tracking-widest px-6 py-2.5 rounded-xl hover:bg-slate-800 transition-all">Panel</button>
+            <div id="nav-cta" class="flex items-center gap-4">
+                <button class="bg-white text-black px-5 py-2 rounded-full text-xs font-bold hover:scale-105 transition-transform active:scale-95">BAŞLA</button>
+            </div>
+        </div>
+        <div id="island-extra" class="absolute inset-0 flex flex-col items-center justify-center space-y-5 hidden content-hidden">
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">Hızlı Menü</p>
+            <div class="flex gap-8">
+                <a href="#ozellikler" class="text-sm font-bold hover:text-blue-400">Özellikler</a>
+                <a href="#nasil" class="text-sm font-bold hover:text-blue-400">Nasıl?</a>
+                <a href="#fiyat" class="text-sm font-bold hover:text-blue-400">Fiyat</a>
+            </div>
+            <button class="w-[85%] bg-white text-black py-3 rounded-2xl text-xs font-black">HEMEN ANALİZ ET</button>
         </div>
     </nav>
 
-    <main class="relative z-10">
-        
-        <section class="min-h-screen flex flex-col justify-center items-center px-8 text-center pt-20">
-            <div data-aos="fade-up" class="inline-flex items-center gap-2 bg-white border border-slate-200 px-4 py-1.5 rounded-full mb-8 shadow-sm">
-                <i data-lucide="shield-check" class="w-4 h-4 text-[var(--c1)]"></i>
-                <span class="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">Resmi Veri İşleme Lisanslı</span>
-            </div>
+    <section class="relative pt-48 pb-32 px-6 hero-gradient reveal">
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <h3 class="text-6xl md:text-[120px] font-black tracking-tighter mb-8 leading-[0.8] italic">Dijitalde ortalama yok<br> <span class="text-red-500">Ya büyürsün ya silinirsin!</span></h3>
+            <p class="max-w-2xl mx-auto text-gray-500 text-xl mb-12 font-medium">Rakiplerinin neden izlendiğini biliyoruz. AVA, verileri analiz eder ve senin için viral senaryolar yazar.</p>
             
-            <h1 data-aos="fade-up" data-aos-delay="100" class="text-5xl md:text-8xl font-black tracking-tight mb-8 leading-[1.1] text-slate-900">
-                İzlenme Potansiyelini <br>
-                <span class="text-[var(--c1)]">Önceden Ölçün.</span>
-            </h1>
-            
-            <p data-aos="fade-up" data-aos-delay="200" class="max-w-2xl mx-auto text-slate-500 text-lg md:text-xl font-medium mb-12 leading-relaxed">
-                AVA, içeriğinizi yayınlamadan önce nöro-analiz yaparak <br class="hidden md:block"> 
-                izleyicinin <span class="text-slate-900 font-bold border-b-2 border-[var(--c1)]/30">dikkat kaybı yaşayacağı</span> anları raporlar.
-            </p>
-
-            <div data-aos="fade-up" data-aos-delay="300" class="flex flex-col sm:flex-row gap-6">
-                <button class="cta-primary text-lg">Hemen Analiz Başlat</button>
-                <div class="flex flex-col items-start justify-center">
-                    <div class="flex -space-x-2">
-                        <img class="w-8 h-8 rounded-full border-2 border-white" src="https://i.pravatar.cc/100?u=1" alt="user">
-                        <img class="w-8 h-8 rounded-full border-2 border-white" src="https://i.pravatar.cc/100?u=2" alt="user">
-                        <img class="w-8 h-8 rounded-full border-2 border-white" src="https://i.pravatar.cc/100?u=7" alt="user">
-                    </div>
-                    <span class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">500+ İçerik Üreticisi Güveniyor</span>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-4 max-w-xl mx-auto bg-white p-3 rounded-[30px] border border-gray-100 shadow-2xl">
+                <div class="flex items-center gap-3 w-full px-4 text-left">
+                    <span class="text-gray-400 font-bold text-xl">@</span>
+                    <input type="text" placeholder="kullanici_adin" class="bg-transparent py-3 w-full outline-none font-bold text-lg">
                 </div>
-            </div>
-        </section>
-
-        <section class="max-w-6xl mx-auto px-8 py-20 border-y border-slate-200/50">
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-8 text-center justify-center">
-                <div data-aos="fade-up">
-                    <div class="text-4xl font-black text-slate-900 mb-1">94%</div>
-                    <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Analiz Doğruluğu</div>
-                </div>
-                <div data-aos="fade-up" data-aos-delay="100">
-                    <div class="text-4xl font-black text-[var(--c1)] mb-1">12M+</div>
-                    <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Analiz Edilen Kare</div>
-                </div>
-                <div data-aos="fade-up" data-aos-delay="200">
-                    <div class="text-4xl font-black text-slate-900 mb-1">3.4x</div>
-                    <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Ortalama Artış</div>
-                </div>
-            </div>
-        </section>
-
-        <section id="features" class="max-w-6xl mx-auto px-8 py-32">
-            <div class="grid md:grid-cols-2 gap-20 items-center">
-                <div data-aos="fade-right">
-                    <h2 class="text-4xl font-black text-slate-900 mb-6 tracking-tight">Kurgu Masasındaki <br>Yapay Zeka Ortağınız.</h2>
-                    <p class="text-slate-500 text-lg mb-10 font-medium">AVA'nın gelişmiş algoritmaları, videonuzun her saniyesini "ilgi çekicilik" skoruna tabi tutar. Kritik düşüşleri siz yayına girmeden haber verir.</p>
-                    
-                    <div class="space-y-6">
-                        <div class="flex gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-[var(--c1)]/10 flex items-center justify-center shrink-0">
-                                <i data-lucide="eye" class="text-[var(--c1)]"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-800">Dikkat Haritalama</h4>
-                                <p class="text-sm text-slate-500 font-medium">İzleyicinin gözünün videonun neresinde olduğunu anlayın.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div data-aos="fade-left" class="glass-card p-8 rounded-[32px] shadow-2xl shadow-blue-100/50">
-                    <div class="flex items-center justify-between mb-8">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Viral Simülasyonu</span>
-                        <div class="flex gap-2">
-                            <div class="w-2 h-2 rounded-full bg-red-400"></div>
-                            <div class="w-2 h-2 rounded-full bg-yellow-400"></div>
-                            <div class="w-2 h-2 rounded-full bg-green-400"></div>
-                        </div>
-                    </div>
-                    <div class="space-y-8">
-                        <div class="h-48 flex items-end gap-1.5 px-2">
-                            <div class="w-full bg-slate-100 h-[20%] rounded-t-lg"></div>
-                            <div class="w-full bg-slate-100 h-[35%] rounded-t-lg"></div>
-                            <div class="w-full bg-slate-200 h-[50%] rounded-t-lg"></div>
-                            <div class="w-full bg-[var(--c1)] h-[95%] rounded-t-lg shadow-[0_0_30px_rgba(120,173,250,0.4)] transition-all cursor-pointer hover:h-full"></div>
-                            <div class="w-full bg-slate-100 h-[40%] rounded-t-lg"></div>
-                        </div>
-                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <div class="flex justify-between items-center">
-                                <span class="text-xs font-bold text-slate-500">POTANSİYEL ERİŞİM</span>
-                                <span class="text-xl font-black text-slate-900 tracking-tighter">1,284,000+</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        <section id="testimonials" class="py-32 bg-white/30">
-            <div class="max-w-4xl mx-auto px-8 text-center">
-                <div data-aos="zoom-in" class="relative">
-                    <i data-lucide="quote" class="w-20 h-20 text-slate-100 absolute -top-10 -left-10 -z-10"></i>
-                    <h3 class="text-3xl md:text-5xl font-medium text-slate-800 leading-tight italic">
-                        "AVA ile çalışmaya başladıktan sonra izlenme sürelerimiz <span class="text-[var(--c1)] font-bold">iki katına</span> çıktı. Artık neyin izleneceğini tahmin etmiyoruz, biliyoruz."
-                    </h3>
-                    <div class="mt-12 flex flex-col items-center">
-                        <img class="w-16 h-16 rounded-full mb-4 shadow-lg" src="https://i.pravatar.cc/150?u=creative" alt="Ülgen">
-                        <div class="font-bold text-slate-900 text-lg">Ülgen Doğan</div>
-                        <div class="text-sm font-bold text-[var(--c1)] uppercase tracking-widest">Global Content Lead @ Netflix</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="max-w-6xl mx-auto px-8 mb-32">
-            <div data-aos="flip-up" class="bg-slate-900 rounded-[40px] p-12 md:p-24 text-center relative overflow-hidden">
-                <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--c1)_0%,_transparent_70%)]"></div>
-                <div class="relative z-10">
-                    <h2 class="text-3xl md:text-6xl font-black text-white mb-8 tracking-tight">Karanlıkta Üretmeyi <br>Bugün Bırakın.</h2>
-                    <p class="text-slate-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto">AVA'nın ilk 3 gün ücretsiz denemesi ile performansınızı 2 katına çıkarın!</p>
-                    <button class="cta-primary text-xl px-12 py-5 bg-white text-slate-900 shadow-none hover:bg-[var(--c1)] hover:text-white">Ücretsiz Deneyin</button>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="py-20 border-t border-slate-200">
-        <div class="max-w-6xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-12 text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em]">
-            <span>© 2026 AVA INTELLIGENCE LABS</span>
-            <div class="flex gap-10">
-                <a href="#" class="hover:text-[var(--c1)]">Twitter</a>
-                <a href="#" class="hover:text-[var(--c1)]">LinkedIn</a>
-                <a href="#" class="hover:text-[var(--c1)]">Youtube</a>
+                <button class="bg-black text-white px-10 py-5 rounded-[22px] font-bold w-full md:w-auto whitespace-nowrap hover:bg-gray-800 transition-all active:scale-95">Analiz Et</button>
             </div>
         </div>
-    </footer>   
+    </section>
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <section id="ozellikler" class="py-32 px-6 max-w-7xl mx-auto">
+        <div class="grid md:grid-cols-3 gap-20">
+            <div class="group reveal">
+                <div class="mb-8 w-16 h-16 bg-black text-white rounded-[24px] flex items-center justify-center shadow-xl transform group-hover:rotate-6 transition-transform">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <h3 class="text-2xl font-black tracking-tighter mb-4 uppercase italic">Hook Laboratuvarı</h3>
+                <p class="text-gray-500 leading-relaxed">İlk 2 saniyede izleyiciyi kilitleyen psikolojik kancalar.</p>
+            </div>
+            <div class="group reveal" style="transition-delay: 0.1s;">
+                <div class="mb-8 w-16 h-16 bg-black text-white rounded-[24px] flex items-center justify-center shadow-xl transform group-hover:-rotate-6 transition-transform">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                </div>
+                <h3 class="text-2xl font-black tracking-tighter mb-4 uppercase italic">Retansiyon Matrisi</h3>
+                <p class="text-gray-500 leading-relaxed">İzleyicinin sıkıldığı anları tahmin eden senaryo optimizasyonu.</p>
+            </div>
+            <div class="group reveal" style="transition-delay: 0.2s;">
+                <div class="mb-8 w-16 h-16 bg-black text-white rounded-[24px] flex items-center justify-center shadow-xl transform group-hover:rotate-6 transition-transform">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                </div>
+                <h3 class="text-2xl font-black tracking-tighter mb-4 uppercase italic">Rakip Radarı</h3>
+                <p class="text-gray-500 leading-relaxed">Rakiplerinin en çok izlenen içeriklerini algoritma düzeyinde raporlar.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="fiyat" class="py-24 px-6 reveal">
+        <div class="max-w-6xl mx-auto bg-black rounded-[50px] p-12 md:p-28 text-center text-white relative overflow-hidden">
+            <h2 class="text-5xl md:text-8xl font-black tracking-tighter mb-10 leading-[0.9] italic">İÇERİK KRİZİNE <br> SON VER.</h2>
+            <button class="bg-white text-black px-14 py-6 rounded-[25px] font-black text-xl hover:scale-105 transition-all">ÜCRETSİZ BAŞLAT</button>
+        </div>
+    </section>
+
+    <footer class="py-16 text-center opacity-50 text-[10px] font-black tracking-[0.4em] uppercase">© 2024 AVA DIGITAL LABS.</footer>
+
     <script>
-        // --- 1. Başlangıç Ayarları ---
-        lucide.createIcons();
-        AOS.init({ duration: 1000, once: true });
+        // 1. DYNAMIC ISLAND LOGIC
+        const nav = document.getElementById('navbar');
+        const navContent = document.getElementById('nav-content');
+        const islandExtra = document.getElementById('island-extra');
+        let isExpanded = false;
 
-        // --- 2. Spotlight Efekti ---
-        window.addEventListener('mousemove', (e) => {
-            const spotlight = document.getElementById('spotlight');
-            const x = (e.clientX / window.innerWidth) * 100;
-            const y = (e.clientY / window.innerHeight) * 100;
-            spotlight.style.background = `radial-gradient(circle at ${x}% ${y}%, rgba(120, 173, 250, 0.07) 0%, transparent 60%)`;
+        function expandIsland(e) {
+            if (isExpanded) return;
+            e.stopPropagation();
+            isExpanded = true;
+            navContent.style.opacity = "0";
+            nav.classList.add('island-expanded');
+            setTimeout(() => {
+                navContent.classList.add('hidden');
+                islandExtra.classList.remove('hidden');
+                islandExtra.offsetHeight;
+                islandExtra.classList.remove('content-hidden');
+                islandExtra.classList.add('content-visible');
+            }, 150);
+        }
+
+        function closeIsland() {
+            if (!isExpanded) return;
+            isExpanded = false;
+            islandExtra.classList.add('content-hidden');
+            islandExtra.classList.remove('content-visible');
+            setTimeout(() => {
+                islandExtra.classList.add('hidden');
+                navContent.classList.remove('hidden');
+                nav.classList.remove('island-expanded');
+                setTimeout(() => { navContent.style.opacity = "1"; }, 300);
+            }, 200);
+        }
+
+        document.addEventListener('click', (e) => { if (isExpanded && !nav.contains(e.target)) closeIsland(); });
+
+        window.addEventListener('scroll', () => {
+            if (isExpanded) return;
+            if (window.scrollY > 80) {
+                nav.classList.remove('w-[90%]', 'max-w-[900px]', 'px-6');
+                nav.classList.add('w-[140px]', 'px-4', 'justify-center');
+                document.getElementById('nav-logo-text').classList.add('hidden');
+                document.getElementById('nav-cta').classList.add('hidden');
+            } else {
+                nav.classList.add('w-[90%]', 'max-w-[900px]', 'px-6');
+                nav.classList.remove('w-[140px]', 'px-4', 'justify-center');
+                document.getElementById('nav-logo-text').classList.remove('hidden');
+                document.getElementById('nav-cta').classList.remove('hidden');
+            }
         });
 
-        // --- 3. Hook Slider Mantığı ---
-        const slider = document.getElementById("hookSlider");
-        const slides = slider.children.length;
-        const dots = document.querySelectorAll("#hooks .flex.justify-center div");
-        let current = 0;
-        let isDown = false;
-        let startX = 0;
-        let currentTranslate = 0;
-        let prevTranslate = 0;
-
-        const slideWidth = () => slider.parentElement.offsetWidth;
-
-        const setTranslate = (x, animate = true) => {
-            slider.style.transition = animate ? "transform .3s ease-out" : "none";
-            slider.style.transform = `translateX(${x}px)`;
-        };
-
-        const updateDots = () => {
-            dots.forEach((dot, idx) => {
-                dot.style.opacity = idx === current ? "1" : "0.3";
-                dot.style.background = idx === current ? "var(--c1)" : "rgb(203 213 225)";
+        // 2. SCROLL REVEAL LOGIC
+        const observerOptions = { threshold: 0.15 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
             });
-        };
+        }, observerOptions);
 
-        const snapToSlide = () => {
-            currentTranslate = -current * slideWidth();
-            prevTranslate = currentTranslate;
-            setTranslate(currentTranslate, true);
-            updateDots();
-        };
-
-        const pointerDown = (x) => {
-            isDown = true;
-            startX = x;
-            slider.style.transition = "none";
-        };
-
-        const pointerMove = (x) => {
-            if (!isDown) return;
-            const diff = x - startX;
-            setTranslate(prevTranslate + diff, false);
-        };
-
-        const pointerUp = (x) => {
-            if (!isDown) return;
-            isDown = false;
-            const diff = x - startX;
-            if (Math.abs(diff) > slideWidth() * 0.15) {
-                if (diff < 0 && current < slides - 1) current++;
-                if (diff > 0 && current > 0) current--;
-            }
-            snapToSlide();
-        };
-
-        // Mouse Events
-        slider.addEventListener("mousedown", e => pointerDown(e.clientX));
-        window.addEventListener("mousemove", e => pointerMove(e.clientX));
-        window.addEventListener("mouseup", e => pointerUp(e.clientX));
-
-        // Touch Events
-        slider.addEventListener("touchstart", e => pointerDown(e.touches[0].clientX));
-        slider.addEventListener("touchmove", e => pointerMove(e.touches[0].clientX));
-        slider.addEventListener("touchend", e => pointerUp(e.changedTouches[0].clientX));
-
-        // Resize Fix
-        window.addEventListener("resize", snapToSlide);
-        snapToSlide(); // Init position
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     </script>
 </body>
 </html>
