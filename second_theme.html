@@ -1,173 +1,249 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AVA Digital | Profesyonel Reels Analiz & Strateji</title>
+    <title>AVA Digital | Veri Odaklı Reels Stratejileri</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { darkBg: '#050505', lightBg: '#fafafa', }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; overflow-x: hidden; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; transition: background-color 0.5s ease; }
         
         /* Dynamic Island */
-        .dynamic-island-transition { transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1); }
-        .glass { background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .island-expanded { width: 320px !important; height: 180px !important; border-radius: 44px !important; background: rgba(10, 10, 10, 0.98) !important; }
+#navbar {
+        /* cubic-bezier(0.32, 0.72, 0, 1) Apple'ın akışkan animasyon eğrisidir */
+        transition: 
+            width 0.6s cubic-bezier(0.32, 0.72, 0, 1), 
+            padding 0.6s cubic-bezier(0.32, 0.72, 0, 1), 
+            background-color 0.5s ease;
+    }
 
-        /* SCROLL REVEAL ANIMASYONU */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+    .island-closed { 
+        width: 140px; 
+        padding: 10px 16px; 
+    }
+
+    .island-open { 
+        width: 95%; 
+        max-width: 650px; 
+        padding: 10px 24px; 
+    }
+
+    /* Yazıların gelme hızı - kutu biraz büyüdükten sonra görünmeli */
+    .nav-content { 
+        opacity: 0; 
+        visibility: hidden; 
+        transition: opacity 0.4s ease 0.1s, visibility 0.4s ease 0.1s; 
+        white-space: nowrap; 
+    }
+
+    .island-open .nav-content { 
+        opacity: 1; 
+        visibility: visible; 
+    }
+
+        .glass { backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1); }
+        .light #navbar { background: rgba(0, 0, 0, 0.9); color: white; border-color: rgba(255, 255, 255, 0.1); }
+        .dark .glass { background: rgba(25, 25, 25, 0.7); border-color: rgba(255, 255, 255, 0.08); }
+
+        /* Animations */
+        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .marquee { display: flex; width: 200%; animation: scroll 30s linear infinite; }
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        .text-gradient {
+            background: linear-gradient(to bottom right, #fff 30%, rgba(255,255,255,0.4));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
+        .light .text-gradient {
+            background: linear-gradient(to bottom right, #000 40%, #444);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-
-        /* İçerik Animasyonları */
-        .content-hidden { opacity: 0; transform: translateY(10px); pointer-events: none; }
-        .content-visible { opacity: 1; transform: translateY(0); pointer-events: auto; transition: all 0.4s ease 0.2s; }
-
-        .hero-gradient { background: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.03) 0%, rgba(255,255,255,0) 70%); }
     </style>
 </head>
-<body class="bg-white text-black">
+<body class="bg-lightBg dark:bg-darkBg text-black dark:text-white overflow-x-hidden">
 
-    <nav id="navbar" onclick="expandIsland(event)" class="fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center justify-between glass text-white px-6 py-3 rounded-full dynamic-island-transition w-[90%] max-w-[900px] shadow-2xl cursor-pointer overflow-hidden">
-        <div id="nav-content" class="flex items-center justify-between w-full transition-opacity duration-300">
-            <div class="flex items-center gap-2 shrink-0">
-                <div class="w-7 h-7 bg-white rounded-lg flex items-center justify-center">
-                    <div class="w-3 h-3 bg-black rounded-sm rotate-45"></div>
-                </div>
-                <span id="nav-logo-text" class="font-extrabold tracking-tighter text-lg">AVA Digital</span>
-            </div>
-            <div id="nav-cta" class="flex items-center gap-4">
-                <button class="bg-white text-black px-5 py-2 rounded-full text-xs font-bold hover:scale-105 transition-transform active:scale-95">BAŞLA</button>
-            </div>
+    <nav class="fixed top-6 left-1/2 -translate-x-1/2 z-[100] island-closed glass rounded-[30px] flex items-center justify-between cursor-pointer md:cursor-default" id="navbar">
+        <div class="flex items-center gap-2">
+            <div class="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-[10px] shrink-0">A</div>
+            <span class="font-bold text-xs tracking-tighter nav-content">AVA DIGITAL</span>
         </div>
-        <div id="island-extra" class="absolute inset-0 flex flex-col items-center justify-center space-y-5 hidden content-hidden">
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">Hızlı Menü</p>
-            <div class="flex gap-8">
-                <a href="#ozellikler" class="text-sm font-bold hover:text-blue-400">Özellikler</a>
-                <a href="#nasil" class="text-sm font-bold hover:text-blue-400">Nasıl?</a>
-                <a href="#fiyat" class="text-sm font-bold hover:text-blue-400">Fiyat</a>
-            </div>
-            <button class="w-[85%] bg-white text-black py-3 rounded-2xl text-xs font-black">HEMEN ANALİZ ET</button>
+        <div class="nav-content flex items-center gap-4 md:gap-8">
+            <a href="#hizmetler" class="text-[10px] uppercase font-bold opacity-70 hover:opacity-100 transition-opacity">Hizmetler</a>
+            <button id="theme-toggle" class="p-2 hover:bg-white/10 rounded-full text-inherit">
+                <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"></path></svg>
+                <svg class="w-4 h-4 dark:hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            </button>
+            <button class="bg-blue-600 text-white text-[9px] font-extrabold px-4 py-2 rounded-full uppercase shrink-0">Analiz Al</button>
         </div>
     </nav>
 
-    <section class="relative pt-48 pb-32 px-6 hero-gradient reveal">
-        <div class="max-w-4xl mx-auto text-center relative z-10">
-            <h3 class="text-6xl md:text-[120px] font-black tracking-tighter mb-8 leading-[0.8] italic">Dijitalde ortalama yok<br> <span class="text-red-500">Ya büyürsün ya silinirsin!</span></h3>
-            <p class="max-w-2xl mx-auto text-gray-500 text-xl mb-12 font-medium">Rakiplerinin neden izlendiğini biliyoruz. AVA, verileri analiz eder ve senin için viral senaryolar yazar.</p>
+    <section class="relative pt-32 pb-20 px-6">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-blue-600/10 dark:bg-blue-600/20 blur-[120px] rounded-full"></div>
+        <div class="max-w-5xl mx-auto text-center relative z-10 reveal">
+            <h1 class="text-4xl md:text-8xl italic tracking-tighter mb-8 leading-[1.1] text-gradient">
+                Dijitalde ortalama yoktur,<br> Ya yükselirsin <span class="font-extrabold">yada silinirsin!</span>
+            </h1>
+            <p class="max-w-2xl mx-auto text-gray-500 dark:text-gray-400 text-lg md:text-xl mb-12 font-light">
+                Veri analitiği ile desteklenmiş Reels stratejileriyle algoritmanın "keşfet" kapılarını sizin için açıyoruz.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button class="w-full sm:w-auto bg-black dark:bg-white text-white dark:text-black px-10 py-5 rounded-2xl font-bold shadow-2xl hover:scale-105 transition-transform">Projeye Başla</button>
+                <button class="w-full sm:w-auto border border-black/10 dark:border-white/10 px-10 py-5 rounded-2xl font-bold hover:bg-black/5 transition-colors">Vaka Analizleri</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-10 max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center reveal">
+        <div><h3 class="text-4xl font-extrabold mb-1">50M+</h3><p class="text-xs text-gray-500 uppercase tracking-widest">Toplam İzlenme</p></div>
+        <div><h3 class="text-4xl font-extrabold mb-1">200%</h3><p class="text-xs text-gray-500 uppercase tracking-widest">Ort. Etkileşim Artışı</p></div>
+        <div><h3 class="text-4xl font-extrabold mb-1">120+</h3><p class="text-xs text-gray-500 uppercase tracking-widest">Mutlu Partner</p></div>
+        <div><h3 class="text-4xl font-extrabold mb-1">15+</h3><p class="text-xs text-gray-500 uppercase tracking-widest">Global Marka</p></div>
+    </section>
+
+    <section id="hizmetler" class="py-32 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6 reveal">
+                <h2 class="text-4xl md:text-6xl font-bold tracking-tighter">İçeriklerinizi <br><span class="text-blue-500">Silaha Dönüştürün.</span></h2>
+                <p class="max-w-sm text-gray-500">Sadece video çekmiyoruz, markanızın dijital karakterini inşa ediyoruz.</p>
+            </div>
             
-            <div class="flex flex-col md:flex-row items-center justify-center gap-4 max-w-xl mx-auto bg-white p-3 rounded-[30px] border border-gray-100 shadow-2xl">
-                <div class="flex items-center gap-3 w-full px-4 text-left">
-                    <span class="text-gray-400 font-bold text-xl">@</span>
-                    <input type="text" placeholder="kullanici_adin" class="bg-transparent py-3 w-full outline-none font-bold text-lg">
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass p-10 rounded-[40px] reveal hover:border-blue-500/50 transition-colors group">
+                    <div class="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4">Veri Analitiği</h4>
+                    <p class="text-gray-500 text-sm leading-relaxed">Rakiplerinizin en çok izlenen içeriklerini ve hedef kitlenizin aktif saatlerini analiz ederek riskleri sıfırlıyoruz.</p>
                 </div>
-                <button class="bg-black text-white px-10 py-5 rounded-[22px] font-bold w-full md:w-auto whitespace-nowrap hover:bg-gray-800 transition-all active:scale-95">Analiz Et</button>
+                <div class="glass p-10 rounded-[40px] reveal hover:border-blue-500/50 transition-colors group">
+                    <div class="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4">Psikolojik Senaryo</h4>
+                    <p class="text-gray-500 text-sm leading-relaxed">İlk 3 saniyede kancayı takan (hook), merak uyandıran ve sonunda aksiyona davet eden (CTA) senaryolar.</p>
+                </div>
+                <div class="glass p-10 rounded-[40px] reveal hover:border-blue-500/50 transition-colors group">
+                    <div class="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4">Viral Kurgu</h4>
+                    <p class="text-gray-500 text-sm leading-relaxed">Dinamik geçişler, ses tasarımı ve alt yazı oyunlarıyla izleyicinin ekran başında kalma süresini maksimize ediyoruz.</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <section id="ozellikler" class="py-32 px-6 max-w-7xl mx-auto">
-        <div class="grid md:grid-cols-3 gap-20">
-            <div class="group reveal">
-                <div class="mb-8 w-16 h-16 bg-black text-white rounded-[24px] flex items-center justify-center shadow-xl transform group-hover:rotate-6 transition-transform">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+    <section class="py-20 bg-black/[0.02] dark:bg-white/[0.02]">
+        <div class="max-w-5xl mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold mb-12 reveal">Size Uygun Stratejiyi Seçin</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="p-8 border border-black/5 dark:border-white/5 rounded-[30px] bg-white dark:bg-black/20 reveal">
+                    <h5 class="text-blue-500 font-bold mb-2">Başlangıç</h5>
+                    <p class="text-3xl font-extrabold mb-6">İçerik Motoru</p>
+                    <ul class="text-left space-y-4 text-sm text-gray-500 mb-8">
+                        <li>• Haftalık 3 Reels Videosu</li>
+                        <li>• Rakip Analiz Raporu</li>
+                        <li>• Viral Trend Takibi</li>
+                    </ul>
+                    <button class="w-full py-4 rounded-xl border border-blue-500 text-blue-500 font-bold hover:bg-blue-500 hover:text-white transition-all">Detayları Al</button>
                 </div>
-                <h3 class="text-2xl font-black tracking-tighter mb-4 uppercase italic">Hook Laboratuvarı</h3>
-                <p class="text-gray-500 leading-relaxed">İlk 2 saniyede izleyiciyi kilitleyen psikolojik kancalar.</p>
-            </div>
-            <div class="group reveal" style="transition-delay: 0.1s;">
-                <div class="mb-8 w-16 h-16 bg-black text-white rounded-[24px] flex items-center justify-center shadow-xl transform group-hover:-rotate-6 transition-transform">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <div class="p-8 border-2 border-blue-600 rounded-[30px] bg-white dark:bg-black/20 relative reveal">
+                    <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-[10px] font-bold">EN ÇOK TERCİH EDİLEN</span>
+                    <h5 class="text-blue-500 font-bold mb-2">Profesyonel</h5>
+                    <p class="text-3xl font-extrabold mb-6">Pazar Lideri</p>
+                    <ul class="text-left space-y-4 text-sm text-gray-500 mb-8">
+                        <li>• Haftalık 5 Reels + 2 Carousel</li>
+                        <li>• 1 Adet Profesyonel Çekim Günü</li>
+                        <li>• Tam Kapsamlı Hesap Yönetimi</li>
+                    </ul>
+                    <button class="w-full py-4 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-500/20 hover:scale-[1.02] transition-transform">Hemen Başla</button>
                 </div>
-                <h3 class="text-2xl font-black tracking-tighter mb-4 uppercase italic">Retansiyon Matrisi</h3>
-                <p class="text-gray-500 leading-relaxed">İzleyicinin sıkıldığı anları tahmin eden senaryo optimizasyonu.</p>
-            </div>
-            <div class="group reveal" style="transition-delay: 0.2s;">
-                <div class="mb-8 w-16 h-16 bg-black text-white rounded-[24px] flex items-center justify-center shadow-xl transform group-hover:rotate-6 transition-transform">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                </div>
-                <h3 class="text-2xl font-black tracking-tighter mb-4 uppercase italic">Rakip Radarı</h3>
-                <p class="text-gray-500 leading-relaxed">Rakiplerinin en çok izlenen içeriklerini algoritma düzeyinde raporlar.</p>
             </div>
         </div>
     </section>
 
-    <section id="fiyat" class="py-24 px-6 reveal">
-        <div class="max-w-6xl mx-auto bg-black rounded-[50px] p-12 md:p-28 text-center text-white relative overflow-hidden">
-            <h2 class="text-5xl md:text-8xl font-black tracking-tighter mb-10 leading-[0.9] italic">İÇERİK KRİZİNE <br> SON VER.</h2>
-            <button class="bg-white text-black px-14 py-6 rounded-[25px] font-black text-xl hover:scale-105 transition-all">ÜCRETSİZ BAŞLAT</button>
+    <footer class="py-20 px-6 border-t border-black/5 dark:border-white/5">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+            <div class="text-center md:text-left">
+                <div class="text-2xl font-extrabold tracking-tighter mb-4">AVA DIGITAL</div>
+                <p class="text-gray-500 text-sm">Dijital geleceğinizi bugünden inşa edin.</p>
+            </div>
+            <div class="flex gap-8 text-[10px] font-bold uppercase tracking-widest opacity-50">
+                <a href="#" class="hover:opacity-100 transition-opacity">Instagram</a>
+                <a href="#" class="hover:opacity-100 transition-opacity">LinkedIn</a>
+                <a href="#" class="hover:opacity-100 transition-opacity">YouTube</a>
+            </div>
         </div>
-    </section>
-
-    <footer class="py-16 text-center opacity-50 text-[10px] font-black tracking-[0.4em] uppercase">© 2024 AVA DIGITAL LABS.</footer>
+        <div class="text-center mt-20 text-[10px] text-gray-400 tracking-[0.5em] uppercase">
+            © 2024 AVA DIGITAL LABS. TÜM HAKLARI SAKLIDIR.
+        </div>
+    </footer>
 
     <script>
-        // 1. DYNAMIC ISLAND LOGIC
         const nav = document.getElementById('navbar');
-        const navContent = document.getElementById('nav-content');
-        const islandExtra = document.getElementById('island-extra');
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
         let isExpanded = false;
 
-        function expandIsland(e) {
-            if (isExpanded) return;
-            e.stopPropagation();
-            isExpanded = true;
-            navContent.style.opacity = "0";
-            nav.classList.add('island-expanded');
-            setTimeout(() => {
-                navContent.classList.add('hidden');
-                islandExtra.classList.remove('hidden');
-                islandExtra.offsetHeight;
-                islandExtra.classList.remove('content-hidden');
-                islandExtra.classList.add('content-visible');
-            }, 150);
-        }
-
-        function closeIsland() {
-            if (!isExpanded) return;
-            isExpanded = false;
-            islandExtra.classList.add('content-hidden');
-            islandExtra.classList.remove('content-visible');
-            setTimeout(() => {
-                islandExtra.classList.add('hidden');
-                navContent.classList.remove('hidden');
-                nav.classList.remove('island-expanded');
-                setTimeout(() => { navContent.style.opacity = "1"; }, 300);
-            }, 200);
-        }
-
-        document.addEventListener('click', (e) => { if (isExpanded && !nav.contains(e.target)) closeIsland(); });
-
-        window.addEventListener('scroll', () => {
-            if (isExpanded) return;
-            if (window.scrollY > 80) {
-                nav.classList.remove('w-[90%]', 'max-w-[900px]', 'px-6');
-                nav.classList.add('w-[140px]', 'px-4', 'justify-center');
-                document.getElementById('nav-logo-text').classList.add('hidden');
-                document.getElementById('nav-cta').classList.add('hidden');
+        // Dynamic Island Logic
+        const toggleNav = (state) => {
+            if (state === 'open') {
+                nav.classList.replace('island-closed', 'island-open');
+                isExpanded = true;
+            } else if (state === 'close') {
+                nav.classList.replace('island-open', 'island-closed');
+                isExpanded = false;
             } else {
-                nav.classList.add('w-[90%]', 'max-w-[900px]', 'px-6');
-                nav.classList.remove('w-[140px]', 'px-4', 'justify-center');
-                document.getElementById('nav-logo-text').classList.remove('hidden');
-                document.getElementById('nav-cta').classList.remove('hidden');
+                isExpanded ? toggleNav('close') : toggleNav('open');
             }
-        });
+        };
 
-        // 2. SCROLL REVEAL LOGIC
-        const observerOptions = { threshold: 0.15 };
+        nav.addEventListener('mouseenter', () => { if(window.innerWidth > 768) toggleNav('open') });
+        nav.addEventListener('mouseleave', () => { if(window.innerWidth > 768) toggleNav('close') });
+        nav.addEventListener('click', (e) => { if(!e.target.closest('button') && !e.target.closest('a')) toggleNav(); });
+
+        window.addEventListener('scroll', () => { if (window.scrollY > 50 && isExpanded) toggleNav('close'); });
+
+        // Theme Toggle
+        // Theme Toggle Başlangıç Ayarı
+if (localStorage.theme === 'dark') {
+    html.classList.add('dark');
+    html.classList.remove('light');
+} else {
+    // Daha önce seçim yoksa veya 'light' seçildiyse burası çalışır
+    html.classList.add('light');
+    html.classList.remove('dark');
+}
+
+themeToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (html.classList.contains('dark')) {
+        html.classList.replace('dark', 'light');
+        localStorage.theme = 'light';
+    } else {
+        html.classList.replace('light', 'dark');
+        localStorage.theme = 'dark';
+    }
+});
+
+        // Intersection Observer for Reveal
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                }
+                if (entry.isIntersecting) entry.target.classList.add('active');
             });
-        }, observerOptions);
+        }, { threshold: 0.1 });
 
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     </script>
