@@ -1,271 +1,417 @@
 <!DOCTYPE html>
-<html lang="tr" class="scroll-smooth">
+<html lang="tr" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AVA Digital | Viral Mühendisliği</title>
+    <title>AVA Digital | Veri Odaklı Reels Stratejileri</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { darkBg: '#050505', lightBg: '#fafafa' },
+                    animation: {
+                        'scroll': 'scroll 5s linear infinite',
+                    },
+                    keyframes: {
+                        scroll: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root { --neon: #d4ff00; --bg: #050505; --card: #0c0c0c; }
-        body { 
-            background-color: var(--bg); 
-            font-family: 'Inter', sans-serif; 
-            color: #ececec;
-            overflow-x: hidden;
+        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; transition: background-color 0.5s ease; }
+        
+        /* Dynamic Island */
+        #navbar { transition: width 0.6s cubic-bezier(0.32, 0.72, 0, 1), padding 0.6s cubic-bezier(0.32, 0.72, 0, 1); }
+        .island-closed { width: 160px; padding: 10px 16px; }
+        .island-open { width: 95%; max-width: 750px; padding: 10px 24px; }
+        .nav-content { opacity: 0; visibility: hidden; transition: opacity 0.3s ease; white-space: nowrap; }
+        .island-open .nav-content { opacity: 1; visibility: visible; }
+
+        .glass { backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .light #navbar { background: rgba(0, 0, 0, 0.85); color: white; }
+        .dark #navbar { background: rgba(255, 255, 255, 0.05); color: white; border-color: rgba(255,255,255,0.1); }
+
+        /* Smooth Marquee Mask */
+        .marquee-container {
+            mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
         }
 
-        .text-readable-gray { color: #a1a1a1; } 
-        .text-dim-gray { color: #71717a; }
+        /* Animasyonlar */
+        .reveal-up { opacity: 0; transform: translateY(40px); transition: all 0.8s ease-out; filter: blur(10px); }
+        .reveal-left { opacity: 0; transform: translateX(-40px); transition: all 0.8s ease-out; }
+        .reveal-right { opacity: 0; transform: translateX(40px); transition: all 0.8s ease-out; }
+        .reveal-rotate { opacity: 0; transform: rotate(-5deg) scale(0.9); transition: all 1s ease; }
+        .active { opacity: 1 !important; transform: none !important; filter: blur(0) !important; }
 
-        .gradient-text {
-            background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.6) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .text-gradient {
+            background: linear-gradient(to bottom right, #000 30%, #666);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-
-        .spotlight {
-            background: radial-gradient(circle at 50% 0%, rgba(212, 255, 0, 0.05) 0%, transparent 70%);
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            pointer-events: none;
-        }
-
-        .cta-primary {
-            background: var(--neon);
-            color: black;
-            padding: 0.8rem 2rem;
-            border-radius: 100px;
-            font-weight: 800;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .cta-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -5px rgba(212, 255, 0, 0.4); }
-
-        .grid-bg {
-            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), 
-                              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
+        .dark .text-gradient {
+            background: linear-gradient(to bottom right, #fff 40%, #888);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        /* Yeni Karşılaştırma Paneli Animasyonu */
-        .active-glow {
-            animation: pulse-glow 4s infinite alternate;
-        }
-        @keyframes pulse-glow {
-            0% { opacity: 0.02; }
-            100% { opacity: 0.1; }
-        }
+        @keyframes draw {
+    from {
+        stroke-dasharray: 500;
+        stroke-dashoffset: 500;
+    }
+    to {
+        stroke-dasharray: 500;
+        stroke-dashoffset: 0;
+    }
+}
+
+.animate-draw {
+    animation: draw 1.8s ease-out forwards;
+}
+
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-lightBg dark:bg-darkBg text-black dark:text-white overflow-x-hidden transition-colors duration-500">
 
-    <div class="spotlight" id="spotlight"></div>
-    <div class="fixed inset-0 grid-bg pointer-events-none"></div>
-
-    <nav class="fixed top-0 w-full z-[100] px-6 py-6 flex justify-center">
-        <div class="max-w-fit flex items-center bg-black/40 backdrop-blur-2xl border border-white/10 px-8 py-2.5 rounded-full">
-            <div class="text-lg font-extrabold tracking-[0.15em] uppercase italic">AVA<span class="text-[var(--neon)]"> Digital</span></div>
+    <nav class="fixed top-6 left-1/2 -translate-x-1/2 z-[100] island-closed glass rounded-[30px] flex items-center justify-between cursor-pointer md:cursor-default shadow-2xl" id="navbar">
+        <div class="flex items-center gap-3">
+            <a href="#" class="w-8 h-8 bg-blue-600 hover:bg-blue-500 rounded-full flex items-center justify-center text-white transition-transform hover:rotate-12" title="Dashboard">
+                <i class="bi bi-grid-fill text-sm"></i>
+            </a>
+            <span class="font-bold text-xs tracking-tighter nav-content text-inherit">AVA DIGITAL</span>
+        </div>
+        
+        <div class="nav-content flex items-center gap-6">
+            <div class="hidden md:flex gap-6">
+                <a href="#biz-kimiz" class="text-[10px] uppercase font-bold opacity-70 hover:opacity-100 transition-opacity">Hakkımızda</a>
+                <a href="#hizmetler" class="text-[10px] uppercase font-bold opacity-70 hover:opacity-100 transition-opacity">Hizmetler</a>
+                <a href="#blog" class="text-[10px] uppercase font-bold opacity-70 hover:opacity-100 transition-opacity">Blog</a>
+            </div>
+            
+            <button id="theme-toggle" class="p-2 hover:bg-white/10 rounded-full transition-colors">
+                <i class="bi bi-moon-stars-fill dark:hidden"></i>
+                <i class="bi bi-sun-fill hidden dark:block"></i>
+            </button>
+            <button class="bg-blue-600 hover:bg-blue-500 text-white text-[9px] font-extrabold px-5 py-2.5 rounded-full uppercase tracking-wider transition-all active:scale-95 shrink-0 shadow-lg shadow-blue-600/20" id="analyzeBtn">Analiz Et!</button>
         </div>
     </nav>
 
-    <main class="relative">
-        
-        <section class="min-h-[90vh] flex flex-col justify-center items-center px-8 text-center pt-20">
-            <p data-aos="fade-down" class="text-[10px] uppercase tracking-[0.4em] text-[var(--neon)] mb-4 font-bold">
-                Algoritmaları Tahmin Edin
-            </p>
-            
-            <h1 data-aos="fade-up" class="text-4xl md:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1]">
-                <span class="gradient-text">VİRAL OLMAK</span><br>BİR ŞANS DEĞİLDİR.
+    <section class="relative pt-44 pb-24 px-6">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-blue-600/10 dark:bg-blue-600/15 blur-[120px] rounded-full"></div>
+        <div class="max-w-5xl mx-auto text-center relative z-10 reveal-up">
+            <h1 class="text-5xl md:text-8xl italic tracking-tighter mb-8 leading-[1.05] text-gradient">
+                Dijitalde ortalama yoktur,<br> Ya yükselirsin <span class="font-extrabold">ya silinirsin!</span> <br>
             </h1>
-            
-            <p data-aos="fade-up" data-aos-delay="100" class="max-w-xl mx-auto text-readable-gray text-base md:text-lg font-light mb-10">
-                AVA, izleyicinin <span class="text-white font-medium">sıkılıp kaydırdığı</span> anları 
-                yayınlamadan önce size söyler. Veriyle kazanan içerikler üretin.
+            <p class="max-w-2xl mx-auto text-gray-500 dark:text-gray-400 text-lg md:text-xl mb-12 font-light">
+                Veri analitiği ile desteklenmiş Reels stratejileriyle algoritmanın kapılarını markanız için aralıyoruz.
             </p>
-
-            <div data-aos="fade-up" data-aos-delay="200" class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                <button class="cta-primary uppercase text-[11px] tracking-widest">
-                    Videonuzu Test Edin
-                </button>
-                <button class="text-white/70 hover:text-[var(--neon)] text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 group transition-colors">
-                    Nasıl Çalışır? 
-                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                </button>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-5">
+                <button class="w-full sm:w-auto bg-black dark:bg-white text-white dark:text-black px-10 py-5 rounded-2xl font-bold shadow-2xl hover:scale-105 transition-transform"><i class="bi bi-telephone-outbound-fill mr-2"></i> Sizi Arayalım</button>
+                <button class="w-full sm:w-auto border border-black/10 dark:border-white/10 bg-white/5 dark:bg-white/5 px-10 py-5 rounded-2xl font-bold hover:bg-black/5 dark:hover:bg-white/10 transition-colors"><i class="bi bi-calendar-date mr-2"></i> Toplantı Planla</button>
             </div>
+        </div>
+    </section>
 
-            <div class="mt-20 grid grid-cols-3 gap-8 md:gap-16 border-t border-white/10 pt-10">
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-white">3.2M+</div>
-                    <div class="text-[9px] text-dim-gray uppercase tracking-widest mt-1">Analiz</div>
+    <section class="py-12 border-y border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01]">
+        <div class="marquee-container overflow-hidden">
+            <div class="flex animate-scroll whitespace-nowrap gap-20 items-center">
+                <div class="flex gap-20 items-center grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                    <span class="text-2xl font-black italic tracking-tighter">APPLE</span>
+                    <span class="text-2xl font-black italic tracking-tighter">NIKE</span>
+                    <span class="text-2xl font-black italic tracking-tighter">RED BULL</span>
+                    <span class="text-2xl font-black italic tracking-tighter">NETFLIX</span>
+                    <span class="text-2xl font-black italic tracking-tighter">TESLA</span>
+                    <span class="text-2xl font-black italic tracking-tighter">ADIDAS</span>
+                    <span class="text-2xl font-black italic tracking-tighter">SPOTIFY</span>
                 </div>
-                <div class="text-center border-x border-white/5 px-8">
-                    <div class="text-2xl font-bold text-[var(--neon)]">%88</div>
-                    <div class="text-[9px] text-dim-gray uppercase tracking-widest mt-1">Doğruluk</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-white">4x</div>
-                    <div class="text-[9px] text-dim-gray uppercase tracking-widest mt-1">Büyüme</div>
+                <div class="flex gap-20 items-center grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                    <span class="text-2xl font-black italic tracking-tighter">APPLE</span>
+                    <span class="text-2xl font-black italic tracking-tighter">NIKE</span>
+                    <span class="text-2xl font-black italic tracking-tighter">RED BULL</span>
+                    <span class="text-2xl font-black italic tracking-tighter">NETFLIX</span>
+                    <span class="text-2xl font-black italic tracking-tighter">TESLA</span>
+                    <span class="text-2xl font-black italic tracking-tighter">ADIDAS</span>
+                    <span class="text-2xl font-black italic tracking-tighter">SPOTIFY</span>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="max-w-4xl mx-auto px-8 py-12">
-            <div data-aos="fade-up" class="relative group">
-                <div class="absolute -inset-0.5 bg-gradient-to-r from-[var(--neon)]/20 to-transparent rounded-[32px] blur opacity-40"></div>
-                
-                <div class="relative bg-[#0c0c0c] border border-white/10 rounded-[32px] overflow-hidden">
-                    <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/5">
-                        
-                        <div class="p-8 flex flex-col justify-between bg-black/20">
-                            <div>
-                                <div class="flex items-center gap-2 mb-4">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-red-500/50 animate-pulse"></div>
-                                    <span class="text-red-500/60 font-mono text-[9px] uppercase tracking-[0.2em] font-bold">Geleneksel Tahmin</span>
-                                </div>
-                                <h3 class="text-base text-dim-gray italic leading-relaxed mb-6">
-                                    "Kahve yapımını gösteren bir video çekmeliyim."
-                                </h3>
-                            </div>
-                            
-                            <div class="space-y-3">
-                                <div class="flex justify-between text-[8px] uppercase tracking-widest text-dim-gray font-bold">
-                                    <span>Tahmin Edilebilirlik</span>
-                                    <span class="text-red-900/60">Zayıf</span>
-                                </div>
-                                <div class="w-full bg-white/5 h-1 rounded-full overflow-hidden">
-                                    <div class="bg-red-900/30 h-full w-[20%]"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-8 flex flex-col justify-between relative overflow-hidden">
-                            <div class="absolute inset-0 bg-[var(--neon)] active-glow"></div>
-                            
-                            <div class="relative z-10">
-                                <div class="flex items-center gap-2 mb-4">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-[var(--neon)]"></div>
-                                    <span class="text-[var(--neon)] font-mono text-[9px] uppercase tracking-[0.2em] font-bold">AVA Veri Analizi</span>
-                                </div>
-                                <h3 class="text-lg font-bold leading-tight text-white mb-6">
-                                    "Sabah rutininde <span class="text-[var(--neon)]">kimsenin bilmediği</span> o kahve hilesi!"
-                                </h3>
-                            </div>
-
-                            <div class="relative z-10 grid grid-cols-2 gap-3">
-                                <div class="bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-[var(--neon)]/20 transition-all">
-                                    <div class="text-[8px] text-dim-gray uppercase mb-1 font-bold tracking-widest">Retention</div>
-                                    <div class="text-xl font-black text-[var(--neon)]">%67</div>
-                                </div>
-                                <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
-                                    <div class="text-[8px] text-dim-gray uppercase mb-1 font-bold tracking-widest">Growth</div>
-                                    <div class="text-xl font-black text-white">+%122</div>
-                                </div>
-                            </div>
-                        </div>
-
+    <section id="biz-kimiz" class="py-32 px-6 overflow-hidden">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+            <div class="reveal-left">
+                <h2 class="text-5xl md:text-6xl font-bold mb-8 leading-tight dark:text-white text-black">Biz <span class="italic font-light">Sıradan</span> Değil, <br><span class="text-blue-600">Sonuç</span> Odaklıyız.</h2>
+                <p class="text-gray-500 dark:text-gray-400 text-lg leading-relaxed mb-8">
+                    AVA Digital, veriyi yaratıcılıkla harmanlayan yeni nesil bir kreatif stüdyodur. Algoritmaların matematiksel dilini markanızın hikayesine tercüme ediyoruz.
+                </p>
+                <div class="flex gap-10">
+                    <div>
+                        <div class="text-3xl font-black text-blue-600">200%</div>
+                        <div class="text-[10px] uppercase font-bold opacity-50 tracking-widest">Ort. Büyüme</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-black text-blue-600">50M+</div>
+                        <div class="text-[10px] uppercase font-bold opacity-50 tracking-widest">İzlenme</div>
                     </div>
                 </div>
             </div>
-        </section>
+            <div class="reveal-rotate">
+                <div class="relative group">
+                    <div class="absolute -inset-4 bg-blue-600/20 rounded-[40px] blur-2xl group-hover:bg-blue-600/30 transition-colors"></div>
+<div class="relative rounded-[40px] p-10 bg-white dark:bg-white/5 shadow-2xl">
+    <h4 class="text-sm uppercase tracking-widest opacity-50 mb-6">Growth Analytics</h4>
 
-        <section class="max-w-6xl mx-auto px-8 py-20">
-            <h2 class="text-2xl md:text-3xl font-bold text-center mb-12">Viral Mühendisliği</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div data-aos="fade-up" class="bg-white/5 p-6 rounded-2xl border border-white/5">
-                    <div class="text-[var(--neon)] text-3xl font-black mb-4 opacity-30">01</div>
-                    <h5 class="text-white text-base font-bold mb-2">Yükle</h5>
-                    <p class="text-dim-gray text-sm leading-relaxed">Taslağınızı sisteme yükleyin, saniyeler içinde analiz başlasın.</p>
-                </div>
-                <div data-aos="fade-up" data-aos-delay="100" class="bg-white/5 p-6 rounded-2xl border border-white/5">
-                    <div class="text-[var(--neon)] text-3xl font-black mb-4 opacity-30">02</div>
-                    <h5 class="text-white text-base font-bold mb-2">Optimize Et</h5>
-                    <p class="text-dim-gray text-sm leading-relaxed">İzleyicinin koptuğu saniyeleri görün ve o bölümleri güçlendirin.</p>
-                </div>
-                <div data-aos="fade-up" data-aos-delay="200" class="bg-white/5 p-6 rounded-2xl border border-white/5">
-                    <div class="text-[var(--neon)] text-3xl font-black mb-4 opacity-30">03</div>
-                    <h5 class="text-white text-base font-bold mb-2">Yayınla</h5>
-                    <p class="text-dim-gray text-sm leading-relaxed">Garantili etkileşim oranıyla içeriğinizi tüm platformlarda paylaşın.</p>
-                </div>
-            </div>
-        </section>
+    <!-- Tooltip -->
+    <div id="graphTooltip"
+        class="pointer-events-none absolute opacity-0 scale-95 transition-all
+               bg-black text-white text-xs px-4 py-2 rounded-xl shadow-xl">
+        test
+    </div>
 
-        <section class="max-w-4xl mx-auto px-8 py-20">
-    <div data-aos="fade-up" class="bg-[#0c0c0c] border border-white/5 rounded-[32px] p-10 md:p-14 relative overflow-hidden group">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-[var(--neon)] opacity-[0.03] blur-3xl"></div>
-        
-        <div class="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12 relative z-10">
-            <div class="relative shrink-0">
-                <div class="w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-[var(--neon)] p-1 rotate-3 group-hover:rotate-0 transition-transform duration-500">
-                    <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" 
-                         class="w-full h-full rounded-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
-                         alt="Ülgen Doğan">
-                </div>
-                <div class="absolute -bottom-2 -right-2 bg-[var(--neon)] text-black p-2 rounded-lg shadow-xl">
-                    <i data-lucide="quote" class="w-4 h-4 fill-black"></i>
-                </div>
-            </div>
+    <svg viewBox="0 0 300 160" class="w-full h-auto relative z-10">
+        <!-- grid -->
+        <g stroke="rgba(0,0,0,0.05)" class="dark:stroke-white/10">
+            <line x1="0" y1="40" x2="300" y2="40"/>
+            <line x1="0" y1="80" x2="300" y2="80"/>
+            <line x1="0" y1="120" x2="300" y2="120"/>
+        </g>
 
-            <div class="flex flex-col text-center md:text-left">
-                <div class="mb-6">
-                    <h4 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Ülgen Doğan</h4>
-                    <p class="text-[var(--neon)] text-[10px] uppercase tracking-[0.3em] font-bold mt-1">Dijital İçerik Üreticisi</p>
-                </div>
-                
-                <blockquote class="text-xl md:text-2xl font-light leading-relaxed text-white/90 italic">
-                    "AVA sayesinde videolarımın girişini değiştirdim ve izlenmelerim 
-                    <span class="text-[var(--neon)] font-bold">3 katına çıktı</span>. 
-                    Artık karanlıkta yürümüyorum, verinin gücüyle ilerliyorum."
-                </blockquote>
+        <!-- line -->
+        <path
+            d="M0 120 L60 100 L120 90 L180 60 L240 40 L300 20"
+            fill="none"
+            stroke="#2563eb"
+            stroke-width="4"
+            stroke-linecap="round"
+            class="animate-draw"
+        />
 
-                <div class="mt-8 flex items-center justify-center md:justify-start gap-4 opacity-50">
-                    <div class="h-[1px] w-12 bg-white/20"></div>
-                    <span class="text-[10px] uppercase tracking-widest text-dim-gray font-bold">Doğrulanmış Başarı Hikayesi</span>
+        <!-- points -->
+        <g fill="#2563eb" class="graph-point cursor-pointer">
+            <circle cx="0" cy="120" r="5" data-label="Ocak" data-value="+12%"/>
+            <circle cx="60" cy="100" r="5" data-label="Şubat" data-value="+28%"/>
+            <circle cx="120" cy="90" r="5" data-label="Mart" data-value="+46%"/>
+            <circle cx="180" cy="60" r="5" data-label="Nisan" data-value="+82%"/>
+            <circle cx="240" cy="40" r="5" data-label="Mayıs" data-value="+134%"/>
+            <circle cx="300" cy="20" r="5" data-label="Haziran" data-value="+200%"/>
+        </g>
+    </svg>
+
+    <p class="text-xs opacity-50 mt-6">
+        Reels erişim artışı (6 aylık)
+    </p>
+</div>
+
+
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-        <section class="py-24 text-center">
-            <h2 class="text-3xl md:text-5xl font-extrabold mb-8">Denemeye Hazır mısınız?</h2>
-            <button class="cta-primary uppercase text-xs tracking-widest">
-                Şimdi Analiz Başlat
-            </button>
-        </section>
-
-    </main>
-
-    <footer class="py-16 border-t border-white/10 bg-black/50">
-        <div class="max-w-6xl mx-auto px-8 text-center md:text-left">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-8">
-                <div>
-                    <div class="text-xl font-extrabold tracking-widest uppercase italic mb-2">AVA<span class="text-[var(--neon)]"> Digital</span></div>
-                    <p class="text-dim-gray text-xs">© 2026 AVA Intelligence. Tüm Hakları Saklıdır.</p>
+    <section class="py-32 px-6 bg-black/[0.02] dark:bg-white/[0.02]">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl md:text-6xl font-bold mb-20 reveal-up text-center dark:text-white text-black">Neden Bizi <span class="text-blue-600 italic">Tercih Etmelisiniz?</span></h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="p-12 glass rounded-[40px] reveal-up bg-white dark:bg-white/5 border-none shadow-xl" style="transition-delay: 0.1s;">
+                    <div class="w-14 h-14 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-8">
+                        <i class="bi bi-cpu text-2xl text-blue-600"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4 dark:text-white">Veri Analitiği</h4>
+                    <p class="text-gray-500 text-sm leading-relaxed">Rakiplerin ve pazarın verilerini işleyerek içerik riskinizi minimize ediyoruz.</p>
                 </div>
-                <div class="flex gap-6">
-                    <i data-lucide="linkedin" class="w-4 h-4 text-dim-gray hover:text-white cursor-pointer"></i>
-                    <i data-lucide="instagram" class="w-4 h-4 text-dim-gray hover:text-white cursor-pointer"></i>
-                    <i data-lucide="twitter" class="w-4 h-4 text-dim-gray hover:text-white cursor-pointer"></i>
+                <div class="p-12 glass rounded-[40px] reveal-up bg-white dark:bg-white/5 border-none shadow-xl" style="transition-delay: 0.2s;">
+                    <div class="w-14 h-14 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-8">
+                        <i class="bi bi-lightning-charge text-2xl text-blue-600"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4 dark:text-white">Hızlı Prodüksiyon</h4>
+                    <p class="text-gray-500 text-sm leading-relaxed">Trendler eskimeden, içeriğinizi en yüksek kalitede yayına hazırlıyoruz.</p>
+                </div>
+                <div class="p-12 glass rounded-[40px] reveal-up bg-white dark:bg-white/5 border-none shadow-xl" style="transition-delay: 0.3s;">
+                    <div class="w-14 h-14 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-8">
+                        <i class="bi bi-shield-check text-2xl text-blue-600"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4 dark:text-white">Sürdürülebilir Erişim</h4>
+                    <p class="text-gray-500 text-sm leading-relaxed">Tek seferlik başarı değil, hesabınızı sürekli büyüten bir sistem kuruyoruz.</p>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <section id="hizmetler" class="py-32 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6 reveal-left">
+                <h2 class="text-4xl md:text-6xl font-bold tracking-tighter dark:text-white text-black">Hizmetlerimizle <br><span class="text-blue-500">Fark Yaratın.</span></h2>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="group relative p-10 glass rounded-[40px] overflow-hidden reveal-up bg-white dark:bg-white/5" style="transition-delay: 0.1s;">
+                    <div class="absolute inset-0 bg-blue-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                    <div class="relative z-10 group-hover:text-white transition-colors">
+                        <h4 class="text-2xl font-bold mb-4">Reels <br>Prodüksiyon</h4>
+                        <p class="text-sm opacity-60 mb-8">Senaryodan kurguya anahtar teslim içerik.</p>
+                        <i class="bi bi-arrow-up-right text-3xl"></i>
+                    </div>
+                </div>
+                <div class="group relative p-10 glass rounded-[40px] overflow-hidden reveal-up bg-white dark:bg-white/5" style="transition-delay: 0.2s;">
+                    <div class="absolute inset-0 bg-blue-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                    <div class="relative z-10 group-hover:text-white transition-colors">
+                        <h4 class="text-2xl font-bold mb-4">Stratejik <br>Danışmanlık</h4>
+                        <p class="text-sm opacity-60 mb-8">Algoritma güncellemelerine tam uyum.</p>
+                        <i class="bi bi-arrow-up-right text-3xl"></i>
+                    </div>
+                </div>
+                <div class="group relative p-10 glass rounded-[40px] overflow-hidden reveal-up bg-white dark:bg-white/5" style="transition-delay: 0.3s;">
+                    <div class="absolute inset-0 bg-blue-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                    <div class="relative z-10 group-hover:text-white transition-colors">
+                        <h4 class="text-2xl font-bold mb-4">Meta <br>Reklamları</h4>
+                        <p class="text-sm opacity-60 mb-8">Doğru kitleye, doğru bütçe yönetimi.</p>
+                        <i class="bi bi-arrow-up-right text-3xl"></i>
+                    </div>
+                </div>
+                <div class="group relative p-10 glass rounded-[40px] overflow-hidden reveal-up bg-white dark:bg-white/5" style="transition-delay: 0.4s;">
+                    <div class="absolute inset-0 bg-blue-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                    <div class="relative z-10 group-hover:text-white transition-colors">
+                        <h4 class="text-2xl font-bold mb-4">Topluluk <br>Yönetimi</h4>
+                        <p class="text-sm opacity-60 mb-8">Takipçilerinizi sadık müşterilere dönüştürün.</p>
+                        <i class="bi bi-arrow-up-right text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="blog" class="py-32 px-6 bg-black/[0.02] dark:bg-white/[0.02]">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold mb-16 reveal-up dark:text-white text-black">Dijital Bilgi <span class="text-blue-600 italic">Kütüphanesi</span></h2>
+            <div class="grid md:grid-cols-3 gap-12">
+                <div class="reveal-up group cursor-pointer" style="transition-delay: 0.1s;">
+                    <div class="rounded-[30px] overflow-hidden mb-6 aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=600" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Blog">
+                    </div>
+                    <h4 class="text-xl font-bold dark:text-white group-hover:text-blue-600 transition-colors">Algoritmanın Yeni Kuralları: 2026 Rehberi</h4>
+                    <p class="text-gray-500 text-sm mt-4">İzlenme oranlarını artıran yeni kanca teknikleri...</p>
+                </div>
+                <div class="reveal-up group cursor-pointer" style="transition-delay: 0.2s;">
+                    <div class="rounded-[30px] overflow-hidden mb-6 aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Blog">
+                    </div>
+                    <h4 class="text-xl font-bold dark:text-white group-hover:text-blue-600 transition-colors">Düşük Bütçe ile Viral Olmak</h4>
+                    <p class="text-gray-500 text-sm mt-4">Ekipman değil strateji kazandırır; işte kanıtları.</p>
+                </div>
+                <div class="reveal-up group cursor-pointer" style="transition-delay: 0.3s;">
+                    <div class="rounded-[30px] overflow-hidden mb-6 aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1557838923-2985c318be48?auto=format&fit=crop&w=600" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Blog">
+                    </div>
+                    <h4 class="text-xl font-bold dark:text-white group-hover:text-blue-600 transition-colors">Vaka Analizi: Global Markalar</h4>
+                    <p class="text-gray-500 text-sm mt-4">Büyük markaların dijital dönüşüm yolculukları.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 px-6">
+        <div class="max-w-6xl mx-auto bg-blue-600 rounded-[60px] p-12 md:p-24 text-center text-white relative overflow-hidden reveal-rotate">
+            <div class="absolute -top-20 -left-20 w-80 h-80 bg-white/10 blur-[100px] rounded-full"></div>
+            <h2 class="text-4xl md:text-7xl font-black mb-10 relative z-10 tracking-tighter italic">ŞİMDİ <br>HAREKETE GEÇİN.</h2>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center relative z-10">
+                <button class="bg-white text-blue-600 px-12 py-6 rounded-[25px] font-black hover:scale-105 transition-transform text-lg shadow-2xl">Başlayın</button>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-20 px-6 border-t border-black/5 dark:border-white/5">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
+            <div class="text-center md:text-left">
+                <div class="text-2xl font-black tracking-tighter mb-4 dark:text-white text-black">AVA DIGITAL</div>
+                <p class="text-gray-500 text-xs tracking-widest uppercase">Dijital geleceğiniz burada başlıyor.</p>
+            </div>
+            <div class="flex gap-8 text-[10px] font-bold uppercase tracking-widest opacity-50 dark:text-white text-black">
+                <a href="#" class="hover:text-blue-600 transition-colors">Instagram</a>
+                <a href="#" class="hover:text-blue-600 transition-colors">LinkedIn</a>
+                <a href="#" class="hover:text-blue-600 transition-colors">YouTube</a>
+            </div>
+        </div>
+        <div class="text-center mt-20 text-[9px] text-gray-400 tracking-[0.6em] uppercase">
+            © 2026 AVA DIGITAL LABS. TÜM HAKLARI SAKLIDIR.
         </div>
     </footer>
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        lucide.createIcons();
-        AOS.init({ duration: 800, once: true });
+        const nav = document.getElementById('navbar');
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        let isExpanded = false;
 
-        window.addEventListener('mousemove', (e) => {
-            const spotlight = document.getElementById('spotlight');
-            const x = (e.clientX / window.innerWidth) * 100;
-            const y = (e.clientY / window.innerHeight) * 100;
-            spotlight.style.background = `radial-gradient(circle at ${x}% ${y}%, rgba(212, 255, 0, 0.07) 0%, transparent 60%)`;
+        // Dynamic Island Logic
+        const toggleNav = (state) => {
+            if (state === 'open') {
+                nav.classList.replace('island-closed', 'island-open');
+                isExpanded = true;
+            } else if (state === 'close') {
+                nav.classList.replace('island-open', 'island-closed');
+                isExpanded = false;
+            } else {
+                isExpanded ? toggleNav('close') : toggleNav('open');
+            }
+        };
+
+        nav.addEventListener('mouseenter', () => { if(window.innerWidth > 768) toggleNav('open') });
+        nav.addEventListener('mouseleave', () => { if(window.innerWidth > 768) toggleNav('close') });
+        nav.addEventListener('click', (e) => { if(!e.target.closest('button') && !e.target.closest('a')) toggleNav(); });
+
+        // Theme Toggle
+        if (localStorage.theme === 'dark') html.classList.add('dark');
+        themeToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            html.classList.toggle('dark');
+            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
         });
+
+        // Intersection Observer for All Reveal Types
+        const observerOptions = { threshold: 0.2 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-up, .reveal-left, .reveal-right, .reveal-rotate').forEach(el => observer.observe(el));
+
+
+const tooltip = document.getElementById("graphTooltip");
+
+document.querySelectorAll(".graph-point circle").forEach(point => {
+    point.addEventListener("mouseenter", (e) => {
+        const { label, value } = e.target.dataset;
+        tooltip.innerHTML = `<strong>${label}</strong><br>${value} büyüme`;
+        tooltip.style.opacity = 1;
+        tooltip.style.scale = 1;
+    });
+
+    point.addEventListener("mousemove", (e) => {
+        tooltip.style.left = e.pageX - 40 + "px";
+        tooltip.style.top = e.pageY - 60 + "px";
+    });
+
+    point.addEventListener("mouseleave", () => {
+        tooltip.style.opacity = 0;
+        tooltip.style.scale = 0.95;
+    });
+});
+
+document.getElementById("analyzeBtn").addEventListener("click", () => {
+    window.location.href = "/dashboard";
+});
+
     </script>
 </body>
 </html>
